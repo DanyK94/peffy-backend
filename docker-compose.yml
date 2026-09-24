@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: peffy-postgres
+    environment:
+      POSTGRES_DB: peffydb
+      POSTGRES_USER: peffyuser
+      POSTGRES_PASSWORD: peffypsw
+    ports:
+      - "5432:5432"
+    volumes:
+      - peffy-postgres-data:/var/lib/postgresql/data
+volumes:
+  peffy-postgres-data:
