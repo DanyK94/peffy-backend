@@ -6,6 +6,8 @@ import java.time.Instant;
 
 import org.springframework.stereotype.Service;
 
+import dg.peffy_backend.exception.ResourceNotFoundException;
+
 @Service 
 public class UserService {
 
@@ -26,7 +28,7 @@ public class UserService {
     }
 
     public User GetUserById(Integer id) {
-        return userRepository.findById(id).orElse(null);
+        return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User with id: "+ id +" not found"));
     }
 
     public List<User> GetAllUsers() {
