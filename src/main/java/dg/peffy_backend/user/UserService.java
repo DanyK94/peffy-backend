@@ -1,6 +1,8 @@
 package dg.peffy_backend.user;
 
+
 import java.util.List;
+import java.time.Instant;
 
 import org.springframework.stereotype.Service;
 
@@ -14,7 +16,12 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public User CreateUser(User user) {
+    public User CreateUser(CreateUserRequest request) {
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setEmail(request.getEmail());
+        user.setPassw(request.getPassw());
+        user.setCreatedAt(Instant.now());
         return userRepository.save(user);
     }
 
