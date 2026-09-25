@@ -33,7 +33,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     public User getUserById(@PathVariable Integer id) {
-        return userService.GetUserById(id);
+        return userService.getUserById(id);
     }
 
     @GetMapping("/")

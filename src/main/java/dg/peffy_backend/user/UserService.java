@@ -27,7 +27,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public User GetUserById(Integer id) {
+    public User getUserById(Integer id) {
         return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User with id: "+ id +" not found"));
     }
 

@@ -1,29 +1,57 @@
 package dg.peffy_backend.account;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+
+import dg.peffy_backend.account.dto.AccountResponse;
+import dg.peffy_backend.account.dto.CreateAccountRequest;
+import dg.peffy_backend.exception.ResourceNotFoundException;
+import dg.peffy_backend.user.UserService;
 
 @Service 
 public class AccountService {
 
     private final AccountRepository accountRepository;
+    private final UserService userService;
 
-    public AccountService(AccountRepository accountRepository){
+
+    public AccountService(AccountRepository accountRepository,
+        UserService userService){
+        
         this.accountRepository = accountRepository;
+        this.userService = userService;
     }
 
-    public Account createAccount(Account account){
-        return accountRepository.save(account);
+    public AccountResponse createAccount(CreateAccountRequest request){
+
+        userService.getUserById(request.getUserId());
+
+        Account account = new Account();
+        account.setUserId(request.getUserId());
+        account.setAccountName(request.getAccountName());
+        account.setAccountType(request.getAccountType());
+        account.setCurrency(request.getCurrency());
+        account.setInitialBalance(request.getInitialBalance());
+
+        Account savedAccount = accountRepository.save(account);
+
+        return parseAccountResponse(savedAccount);
     }
 
-    public List<Account> getAllAccounts() {
-        return accountRepository.findAll();
+    public List<AccountResponse> getAllAccounts() {
+        List<Account> listAccounts = accountRepository.findAll();
+        List<AccountResponse> listResponses = new ArrayList<>();
+        for (Account account : listAccounts) {
+            listResponses.add(parseAccountResponse(account));
+        }
+        return listResponses;
     }
 
-    public Optional<Account> getAccountById(Integer id){
-        return  accountRepository.findById(id);
+    public AccountResponse getAccountById(Integer id){
+        Account account = accountRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Account with id: "+ id +" not found."));
+        return parseAccountResponse(account);
     }
 
     public Account updateAccount(Integer id, Account account){
@@ -40,6 +68,17 @@ public class AccountService {
 
     public void deleteAccount(Integer id) {
         accountRepository.deleteById(id);
+    }
+
+    private AccountResponse parseAccountResponse(Account account){
+        return new AccountResponse(
+            account.getId(),
+            account.getUserId(),
+            account.getAccountName(),
+            account.getAccountType(),
+            account.getCurrency(),
+            account.getInitialBalance()
+        );
     }
     
     
