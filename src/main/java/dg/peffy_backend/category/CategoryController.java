@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import dg.peffy_backend.category.dto.CategoryResponse;
 import dg.peffy_backend.category.dto.CreateCategoryRequest;
 import jakarta.validation.Valid;
 
@@ -25,18 +26,18 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
-    @PostMapping ("/")
-    public Category createCategory(@Valid @RequestBody CreateCategoryRequest createCategoryRequest){
+    @PostMapping
+    public CategoryResponse createCategory(@Valid @RequestBody CreateCategoryRequest createCategoryRequest){
         return categoryService.createCategory(createCategoryRequest);
     }
 
     @GetMapping("/{id}")
-    public Category getMethodName(@PathVariable Integer id) {
+    public CategoryResponse getCategoryById(@PathVariable Integer id) {
         return categoryService.getCategoryById(id);
     }
 
-    @GetMapping("/")
-    public List<Category> getAllCategories() {
+    @GetMapping
+    public List<CategoryResponse> getAllCategories() {
         return categoryService.getAllCategories();
     }
     

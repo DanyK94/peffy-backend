@@ -1,9 +1,11 @@
 package dg.peffy_backend.category;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import dg.peffy_backend.category.dto.CategoryResponse;
 import dg.peffy_backend.category.dto.CreateCategoryRequest;
 import dg.peffy_backend.exception.ResourceNotFoundException;
 import dg.peffy_backend.user.UserService;
@@ -20,7 +22,7 @@ public class CategoryService {
 
     }
 
-    public Category createCategory(CreateCategoryRequest request){
+    public CategoryResponse createCategory(CreateCategoryRequest request){
 
         userService.getUserById(request.getUserId());
 
@@ -30,19 +32,33 @@ public class CategoryService {
         category.setUserId(request.getUserId());
 
         if (request.getParentId() != null){
-            categoryRepository.findById(request.getParentId());
+            categoryRepository.findById(request.getParentId()).orElseThrow(() -> new ResourceNotFoundException("Parent Category with ID: " + request.getParentId() + " not found."));
             category.setParentId(request.getParentId());
         }
 
-        return categoryRepository.save(category);
+        Category savedCat = categoryRepository.save(category);
+        return parseResponse(savedCat);
     }
 
-    public Category getCategoryById(Integer id){
-        return categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Category with ID: " + id + " not found."));
+    public CategoryResponse getCategoryById(Integer id){
+        Category category = categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Category with ID: " + id + " not found."));
+        return  parseResponse(category);
     }
 
-    public List<Category> getAllCategories(){
-        return categoryRepository.findAll();
+    public List<CategoryResponse> getAllCategories(){
+        List<Category> listCat = categoryRepository.findAll();
+        if (listCat == null) { return Collections.emptyList(); }
+        return listCat.stream().map(this::parseResponse).toList();
+        
+    }
+    
+    private CategoryResponse parseResponse(Category category){
+        return new CategoryResponse(
+        category.getId(),
+        category.getUserId(),
+        category.getCategoryName(),
+        category.getCategoryType(),
+        category.getParentId());
     }
 
 

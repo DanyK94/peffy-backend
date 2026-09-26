@@ -2,7 +2,7 @@ package dg.peffy_backend.transaction;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Date;
+import java.time.LocalDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -26,7 +26,7 @@ public class Transaction {
     private Integer categoryId;
 
     @Column (name = "transaction_date")
-    private Date transactionDate;
+    private LocalDate transactionDate;
 
     @Column (name = "amount")
     private BigDecimal amount;
@@ -37,12 +37,12 @@ public class Transaction {
     @Column (name = "notes")
     private String notes;
 
-    @Column (name = "created_ad")
+    @Column (name = "created_at")
     private Instant createdAt;
 
 
     public Transaction(){
-        
+
     }
 
     public Integer getId() {
@@ -69,11 +69,11 @@ public class Transaction {
         this.categoryId = categoryId;
     }
 
-    public Date getTransactionDate() {
+    public LocalDate getTransactionDate() {
         return transactionDate;
     }
 
-    public void setTransactionDate(Date transactionDate) {
+    public void setTransactionDate(LocalDate transactionDate) {
         this.transactionDate = transactionDate;
     }
 

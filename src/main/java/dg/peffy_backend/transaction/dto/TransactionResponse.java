@@ -1,32 +1,42 @@
 package dg.peffy_backend.transaction.dto;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+public class TransactionResponse {
 
-public class CreateTransactionRequest {
-
-    @NotNull (message = "AccountId is required")
+    private Integer id;
     private Integer accountId;
-
-    @NotNull (message = "categoryId is required")
     private Integer categoryId;
-
-    @NotNull (message = "transactionDate is required")
     private LocalDate transactionDate;
-
-    @NotNull (message = "amount is required")
     private BigDecimal amount;
-
-    @NotEmpty (message = "transDescription is required")
     private String transDescription;
-
     private String notes;
+    private Instant createdAt;
 
+    public TransactionResponse(Integer id, Integer accountId, Integer categoryId, LocalDate transactionDate,
+            BigDecimal amount, String transDescription, String notes, Instant createdAt) {
+        this.id = id;
+        this.accountId = accountId;
+        this.categoryId = categoryId;
+        this.transactionDate = transactionDate;
+        this.amount = amount;
+        this.transDescription = transDescription;
+        this.notes = notes;
+        this.createdAt = createdAt;
+    }
 
-    public CreateTransactionRequest(){}
+    public TransactionResponse() {
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
     public Integer getAccountId() {
         return accountId;
@@ -76,5 +86,11 @@ public class CreateTransactionRequest {
         this.notes = notes;
     }
 
-    
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
 }

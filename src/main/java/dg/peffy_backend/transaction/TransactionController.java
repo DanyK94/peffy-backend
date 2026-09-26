@@ -2,12 +2,13 @@ package dg.peffy_backend.transaction;
 
 import java.util.List;
 
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import dg.peffy_backend.transaction.dto.CreateTransactionRequest;
+import dg.peffy_backend.transaction.dto.TransactionResponse;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 
 
-@Controller 
-@RequestMapping("api/transaction")
+@RestController 
+@RequestMapping("/api/transaction")
 public class TransactionController {
 
     private final TransactionService transactionService;
@@ -28,17 +29,17 @@ public class TransactionController {
     }
 
     @GetMapping("/{id}")
-    public Transaction getTransactionById(@RequestAttribute  Integer id) {
+    public TransactionResponse getTransactionById(@PathVariable Integer id) {
         return transactionService.getTransactionById(id);
     }
 
-    @GetMapping("/")
-    public List<Transaction> getAllTransactions() {
+    @GetMapping
+    public List<TransactionResponse> getAllTransactions() {
         return transactionService.getAllTransactions();
     }
 
-    @PostMapping("/")
-    public Transaction createTransaction( @Valid @RequestBody CreateTransactionRequest request) {
+    @PostMapping
+    public TransactionResponse createTransaction( @Valid @RequestBody CreateTransactionRequest request) {
         return transactionService.createTransaction(request);
     }
     
