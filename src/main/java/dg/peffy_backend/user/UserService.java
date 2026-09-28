@@ -1,12 +1,15 @@
 package dg.peffy_backend.user;
 
 
+import java.util.Collections;
 import java.util.List;
 import java.time.Instant;
 
 import org.springframework.stereotype.Service;
 
 import dg.peffy_backend.exception.ResourceNotFoundException;
+import dg.peffy_backend.user.dto.CreateUserRequest;
+import dg.peffy_backend.user.dto.UserResponse;
 
 @Service 
 public class UserService {
@@ -18,32 +21,39 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public User CreateUser(CreateUserRequest request) {
+    public UserResponse CreateUser(CreateUserRequest request) {
         User user = new User();
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
         user.setPassw(request.getPassw());
         user.setCreatedAt(Instant.now());
-        return userRepository.save(user);
+        return parseUser(userRepository.save(user));
     }
 
-    public User getUserById(Integer id) {
-        return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User with id: "+ id +" not found"));
+    public UserResponse getUserById(Integer id) {
+        return parseUser(userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User with id: "+ id +" not found")));
     }
 
-    public List<User> GetAllUsers() {
-        return userRepository.findAll();
+    public List<UserResponse> GetAllUsers() {
+        List<User> listUser = userRepository.findAll();
+        if (listUser == null) {return Collections.emptyList();}
+        return listUser.stream().map(this::parseUser).toList();
     }
 
-    public User UpdateUser(User user) {
+    public UserResponse UpdateUser(User user) {
         User exsUser = userRepository.findById(user.getId()).orElseThrow();
         exsUser.setUsername(user.getUsername());
         exsUser.setEmail(user.getEmail());
-        return userRepository.save(exsUser);
+        return parseUser(userRepository.save(exsUser));
     }
 
     public void DeleteUser(Integer id) {
         userRepository.deleteById(id);
+    }
+
+
+    private UserResponse parseUser(User user){
+        return new UserResponse(user.getId(), user.getUsername(), user.getEmail(), user.getCreatedAt());
     }
 
 

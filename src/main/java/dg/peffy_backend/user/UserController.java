@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import dg.peffy_backend.user.dto.CreateUserRequest;
+import dg.peffy_backend.user.dto.UserResponse;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,17 +29,17 @@ public class UserController {
 
     @PostMapping ("/")
     @ResponseStatus(HttpStatus.CREATED)
-    public User createUser(@Valid @RequestBody CreateUserRequest request) {
+    public UserResponse createUser(@Valid @RequestBody CreateUserRequest request) {
         return userService.CreateUser(request);
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable Integer id) {
+    public UserResponse getUserById(@PathVariable Integer id) {
         return userService.getUserById(id);
     }
 
     @GetMapping("/")
-    public List<User> getAllUsers() {
+    public List<UserResponse> getAllUsers() {
         return userService.GetAllUsers();
     }   
     

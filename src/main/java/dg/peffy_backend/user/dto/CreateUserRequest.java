@@ -1,4 +1,4 @@
-package dg.peffy_backend.user;
+package dg.peffy_backend.user.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -12,11 +12,11 @@ public class CreateUserRequest {
 
     @NotBlank(message = "Email Required")
     @Email(message = "Email is not Valid")
-     @Size(max = 100, message = "Email must not exceed 100 char")
+    @Size(max = 100, message = "Email must not exceed 100 char")
     private String email;
 
     @NotBlank(message = "Password Required")
-     @Size(min = 8, max = 255, message = "Password must be between 8 and 255 char")
+    @Size(min = 8, max = 255, message = "Password must be between 8 and 255 char")
     private String passw;
 
     public CreateUserRequest() {

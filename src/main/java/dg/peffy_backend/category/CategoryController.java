@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 
 @RestController 
-@RequestMapping ("api/categories")
+@RequestMapping ("/api/categories")
 public class CategoryController {
 
     
