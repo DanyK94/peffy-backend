@@ -1,11 +1,13 @@
 package dg.peffy_backend.category;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
 import dg.peffy_backend.category.dto.CategoryResponse;
+import dg.peffy_backend.category.dto.CategorySummary;
 import dg.peffy_backend.category.dto.CreateCategoryRequest;
 import dg.peffy_backend.exception.ResourceNotFoundException;
 import dg.peffy_backend.user.UserService;
@@ -50,6 +52,11 @@ public class CategoryService {
         if (listCat == null) { return Collections.emptyList(); }
         return listCat.stream().map(this::parseResponse).toList();
         
+    }
+
+    public List<CategorySummary> getCategorySummaryByUserId(Integer userId, LocalDate start, LocalDate end){
+        List<CategorySummary> cs = categoryRepository.findSumAmmountByCategoryForUser(userId, start, end);
+        return cs;
     }
     
     private CategoryResponse parseResponse(Category category){

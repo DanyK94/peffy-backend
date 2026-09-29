@@ -38,6 +38,12 @@ public class BudgetService {
         return listBudget.stream().map(this:: parseBudget).toList();   
     }
 
+    public List<BudgetResponse> getBudgetsByUserId(Integer userId){
+        List<Budget> budgets = budgetRepository.findAllByUserId(userId);
+        if (budgets == null) {return Collections.emptyList();}
+        return budgets.stream().map(this::parseBudget).toList();
+    }
+
 
     public BudgetResponse parseBudget(Budget budget){
         return new BudgetResponse(

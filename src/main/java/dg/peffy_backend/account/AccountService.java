@@ -1,6 +1,7 @@
 package dg.peffy_backend.account;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -68,6 +69,12 @@ public class AccountService {
 
     public void deleteAccount(Integer id) {
         accountRepository.deleteById(id);
+    }
+
+    public List<AccountResponse> getAllAccountsByUserId(Integer userId){
+        List<Account> listAccounts = accountRepository.findByUserId(userId);
+        if (listAccounts == null) { return Collections.emptyList();}
+        return listAccounts.stream().map(this::parseAccountResponse).toList();
     }
 
     private AccountResponse parseAccountResponse(Account account){

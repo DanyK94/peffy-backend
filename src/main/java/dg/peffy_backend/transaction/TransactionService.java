@@ -1,6 +1,7 @@
 package dg.peffy_backend.transaction;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
@@ -37,6 +38,20 @@ public class TransactionService {
         if (listTransactions == null) {return Collections.emptyList();}
 
         return listTransactions.stream().map(this::parseTransaction).toList();
+    }
+
+    public List<TransactionResponse> getAllTransactionsByAccountId(Integer accountId){
+        List<Transaction> listTransactions = transactionRepository.findByAccountId(accountId);
+        
+        if (listTransactions == null) {return Collections.emptyList();}
+
+        return listTransactions.stream().map(this::parseTransaction).toList();
+    }
+
+    public List<TransactionResponse> getAllTransactionsByDate(LocalDate start, LocalDate end){
+        List<Transaction> transactions = transactionRepository.findByDateBetween(start, end);
+        if (transactions == null) {return Collections.emptyList();}
+        return transactions.stream().map(this::parseTransaction).toList();
     }
 
     public TransactionResponse createTransaction(CreateTransactionRequest request){
