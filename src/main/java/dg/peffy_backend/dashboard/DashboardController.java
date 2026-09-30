@@ -3,8 +3,6 @@ package dg.peffy_backend.dashboard;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -20,7 +18,7 @@ public class DashboardController {
     }
 
     @GetMapping("/{userId}")
-    public List<DashboardResponse> getDashboard(@PathVariable Integer userId) {
+    public DashboardResponse getDashboard(@PathVariable Integer userId) {
         return dashboardService.defineUserDashboard(userId);
     }
     
