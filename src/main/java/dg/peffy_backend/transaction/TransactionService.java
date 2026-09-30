@@ -1,5 +1,6 @@
 package dg.peffy_backend.transaction;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Collections;
@@ -8,6 +9,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import dg.peffy_backend.account.AccountService;
+import dg.peffy_backend.budget.dto.BudgetSummaryResponse;
 import dg.peffy_backend.category.CategoryService;
 import dg.peffy_backend.exception.ResourceNotFoundException;
 import dg.peffy_backend.transaction.dto.CreateTransactionRequest;
@@ -74,6 +76,18 @@ public class TransactionService {
 
         return parseTransaction(transactionRepository.save(transaction));
 
+    }
+
+    public List<BudgetSummaryResponse> getTotalForBudgets(Integer userId, LocalDate startDate, LocalDate endDate){
+        return transactionRepository.queryBudgetSummary(userId, startDate, endDate);
+    }
+
+    public List<BigDecimal> getTAmountsForDates(List<Integer> accountsId, LocalDate startDate, LocalDate endDate){
+        return transactionRepository.queryTAmountsForDates(accountsId, startDate, endDate);
+    }
+
+    public BigDecimal getSumTransactions(Integer accountId){
+        return transactionRepository.findSumTransactions(accountId);  
     }
 
     public TransactionResponse parseTransaction(Transaction transaction){

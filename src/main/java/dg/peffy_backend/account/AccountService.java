@@ -1,5 +1,6 @@
 package dg.peffy_backend.account;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import dg.peffy_backend.account.dto.AccountResponse;
 import dg.peffy_backend.account.dto.CreateAccountRequest;
 import dg.peffy_backend.exception.ResourceNotFoundException;
+import dg.peffy_backend.transaction.TransactionService;
 import dg.peffy_backend.user.UserService;
 
 @Service 
@@ -16,13 +18,15 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final UserService userService;
+    private final TransactionService transactionService;
 
 
     public AccountService(AccountRepository accountRepository,
-        UserService userService){
+        UserService userService, TransactionService transactionService){
         
         this.accountRepository = accountRepository;
         this.userService = userService;
+        this.transactionService = transactionService;
     }
 
     public AccountResponse createAccount(CreateAccountRequest request){
@@ -75,6 +79,10 @@ public class AccountService {
         List<Account> listAccounts = accountRepository.findByUserId(userId);
         if (listAccounts == null) { return Collections.emptyList();}
         return listAccounts.stream().map(this::parseAccountResponse).toList();
+    }
+
+    public BigDecimal getBalance(Integer accountId){
+        return getBalance(accountId).add(transactionService.getSumTransactions(accountId));
     }
 
     private AccountResponse parseAccountResponse(Account account){

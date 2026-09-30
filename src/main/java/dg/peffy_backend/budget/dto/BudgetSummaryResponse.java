@@ -12,16 +12,28 @@ public class BudgetSummaryResponse {
 
     public BudgetSummaryResponse(){
 
+
     }
-    
+
+    public BudgetSummaryResponse(Integer categoryId, String categoryName, BigDecimal budget, BigDecimal spent) 
+    {
+        this.categoryId = categoryId;
+        this.categoryName = categoryName;
+        this.budget = budget;
+        this.spent = spent;
+        this.remaining = this.budget.subtract(this.spent);
+    }
+
     public BudgetSummaryResponse(Integer categoryId, String categoryName, BigDecimal budget, BigDecimal spent,
-            BigDecimal remaining) {
+            BigDecimal remaining) 
+    {
         this.categoryId = categoryId;
         this.categoryName = categoryName;
         this.budget = budget;
         this.spent = spent;
         this.remaining = remaining;
     }
+    
     public Integer getCategoryId() {
         return categoryId;
     }
