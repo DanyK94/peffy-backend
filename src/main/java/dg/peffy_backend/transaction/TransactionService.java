@@ -50,12 +50,6 @@ public class TransactionService {
         return listTransactions.stream().map(this::parseTransaction).toList();
     }
 
-    public List<TransactionResponse> getAllTransactionsByDate(LocalDate start, LocalDate end){
-        List<Transaction> transactions = transactionRepository.findByDateBetween(start, end);
-        if (transactions == null) {return Collections.emptyList();}
-        return transactions.stream().map(this::parseTransaction).toList();
-    }
-
     public TransactionResponse createTransaction(CreateTransactionRequest request){
         Transaction transaction = new Transaction();
         //Check AccountID

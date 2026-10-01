@@ -1,16 +1,16 @@
 package dg.peffy_backend.budget.dto;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDate;
 
 public class BudgetResponse { 
 
     private Integer userId;
     private Integer categoryId;
     private BigDecimal amount;
-    private Instant budgetMonth;
+    private LocalDate budgetMonth;
 
-    public BudgetResponse(Integer userId, Integer categoryId, BigDecimal amount, Instant budgetMonth) {
+    public BudgetResponse(Integer userId, Integer categoryId, BigDecimal amount, LocalDate budgetMonth) {
         this.userId = userId;
         this.categoryId = categoryId;
         this.amount = amount;
@@ -45,11 +45,11 @@ public class BudgetResponse {
         this.amount = amount;
     }
 
-    public Instant getBudgetMonth() {
+    public LocalDate getBudgetMonth() {
         return budgetMonth;
     }
 
-    public void setBudgetMonth(Instant budgetMonth) {
+    public void setBudgetMonth(LocalDate budgetMonth) {
         this.budgetMonth = budgetMonth;
     }
     

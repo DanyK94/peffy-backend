@@ -14,19 +14,18 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
 
     List<Transaction> findByAccountId(Integer accountId);
 
-    List<Transaction> findByDateBetween(LocalDate start, LocalDate end);
 
 
     @Query("""
             SELECT new dg.peffy_backend.budget.dto.BudgetSummaryResponse(
-            c.categoryId, c.categoryName, b.amount, SUM(t.amount))
+            c.id, c.categoryName, b.amount, SUM(t.amount))
             FROM Transaction t 
             JOIN Category c ON t.categoryId = c.id
             JOIN Budget b ON b.categoryId = c.id
             WHERE b.userId = :userId
             AND t.transactionDate >= :startDate
             AND t.transactionDate <= :enbDate
-            GROUP BY c.categoryId
+            GROUP BY c.id, c.categoryName, b.amount
             """)
     List<BudgetSummaryResponse> queryBudgetSummary(@Param("userId") Integer userId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate enDate );
 
@@ -36,7 +35,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
             AND t.transactionDate >= :startDate
             AND t.transactionDate <= :endDate
             """)
-    public List<BigDecimal> queryTAmountsForDates(@Param("userId") List<Integer> accountsId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+    public List<BigDecimal> queryTAmountsForDates(@Param("accountsId") List<Integer> accountsId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
 
     @Query("""

@@ -1,7 +1,7 @@
 package dg.peffy_backend.budget.dto;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDate;
 
 import jakarta.validation.constraints.NotNull;
 
@@ -17,7 +17,7 @@ public class CreateBudgetRequest {
     private BigDecimal amount;
 
     @NotNull (message = "BudgetMonth Cannot be empty")
-    private Instant budgetMonth;
+    private LocalDate budgetMonth;
 
     public CreateBudgetRequest(){
 
@@ -47,11 +47,11 @@ public class CreateBudgetRequest {
         this.amount = amount;
     }
 
-    public Instant getBudgetMonth() {
+    public LocalDate getBudgetMonth() {
         return budgetMonth;
     }
 
-    public void setBudgetMonth(Instant budgetMonth) {
+    public void setBudgetMonth(LocalDate budgetMonth) {
         this.budgetMonth = budgetMonth;
     }
     

@@ -1,15 +1,17 @@
 package dg.peffy_backend.budget;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
-@Entity 
+@Entity
+@Table(name = "budgets")
 public class Budget {
     
     @Id
@@ -26,7 +28,7 @@ public class Budget {
     private BigDecimal amount;
 
     @Column (name = "b_month", nullable = false)
-    private Instant budgetMonth;
+    private LocalDate budgetMonth;
 
     /*
     id SERIAL PRIMARY KEY,
@@ -72,11 +74,11 @@ public class Budget {
         this.amount = amount;
     }
 
-    public Instant getBudgetMonth() {
+    public LocalDate  getBudgetMonth() {
         return budgetMonth;
     }
 
-    public void setBudgetMonth(Instant budgetMonth) {
+    public void setBudgetMonth(LocalDate  budgetMonth) {
         this.budgetMonth = budgetMonth;
     } 
 
