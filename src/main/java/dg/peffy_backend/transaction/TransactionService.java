@@ -1,5 +1,6 @@
 package dg.peffy_backend.transaction;
 
+import dg.peffy_backend.account.AccountRepository;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -8,7 +9,6 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import dg.peffy_backend.account.AccountService;
 import dg.peffy_backend.budget.dto.BudgetSummaryResponse;
 import dg.peffy_backend.category.CategoryService;
 import dg.peffy_backend.exception.ResourceNotFoundException;
@@ -18,15 +18,16 @@ import dg.peffy_backend.transaction.dto.TransactionResponse;
 @Service 
 public class TransactionService {
 
+    private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
-    private final AccountService accountService;
     private final CategoryService categoryService;
 
-    public TransactionService(TransactionRepository transactionRepository, AccountService accountService,
-            CategoryService categoryService) {
+    public TransactionService(TransactionRepository transactionRepository,
+            CategoryService categoryService, AccountRepository accountRepository) {
+
         this.transactionRepository = transactionRepository;
-        this.accountService = accountService;
         this.categoryService = categoryService;
+        this.accountRepository = accountRepository;
     }
 
 
@@ -53,7 +54,9 @@ public class TransactionService {
     public TransactionResponse createTransaction(CreateTransactionRequest request){
         Transaction transaction = new Transaction();
         //Check AccountID
-        accountService.getAccountById(request.getAccountId());
+        if(!accountRepository.existsById(request.getAccountId())) {
+            throw new ResourceNotFoundException("Account with ID: " + request.getAccountId() + " not found");
+        }
         transaction.setAccountId(request.getAccountId());
         
         //Check CategoryID
@@ -70,6 +73,10 @@ public class TransactionService {
 
         return parseTransaction(transactionRepository.save(transaction));
 
+    }
+
+    public List<BudgetSummaryResponse> getBudgetSummaryResponses(Integer userId, LocalDate startDate, LocalDate enDate){
+        return transactionRepository.queryBudgetSummary(userId, startDate, enDate);
     }
 
     public List<BudgetSummaryResponse> getTotalForBudgets(Integer userId, LocalDate startDate, LocalDate endDate){

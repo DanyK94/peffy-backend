@@ -24,9 +24,22 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
             JOIN Budget b ON b.categoryId = c.id
             WHERE b.userId = :userId
             AND t.transactionDate >= :startDate
-            AND t.transactionDate <= :enbDate
+            AND t.transactionDate <= :endDate
             GROUP BY c.id, c.categoryName, b.amount
             """)
+    List<BudgetSummaryResponse> queryBudgetSummary2(@Param("userId") Integer userId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate enDate );
+
+    @Query("""
+        SELECT new dg.peffy_backend.budget.dto.BudgetSummaryResponse(
+        c.id, c.categoryName, b.amount, SUM(t.amount))
+        FROM Budget b 
+        JOIN Category c ON b.categoryId = c.id           
+        JOIN Transaction t ON t.categoryId = c.id
+        WHERE b.userId = :userId
+        AND t.transactionDate >= :startDate
+        AND t.transactionDate <= :endDate
+        GROUP BY c.id, c.categoryName, b.amount
+        """)
     List<BudgetSummaryResponse> queryBudgetSummary(@Param("userId") Integer userId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate enDate );
 
     @Query("""

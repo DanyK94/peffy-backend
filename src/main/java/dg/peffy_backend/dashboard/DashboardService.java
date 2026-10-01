@@ -47,18 +47,6 @@ public class DashboardService {
 
         List<BudgetSummaryResponse> budgets = transactionService.getTotalForBudgets(userId,dates.get(0), dates.get(1));
 
-        /*
-        List<BudgetResponse> budgets = budgetService.getBudgetsByUserId(userId);
-        List<Integer> categoryIds = budgets.stream().map(BudgetResponse::getCategoryId).toList();
-        List<CategorySummary> listCategorySummaries = categoryService.getCategorySummByUserCategories(userId, dates.get(0), dates.get(1), categoryIds);
-        
-        List<BudgetSummaryResponse> listBudgetResponse = new ArrayList<>();
-        for (BudgetResponse budget : budgets) {
-            BudgetSummaryResponse budgetResp =  new BudgetSummaryResponse(budget.getCategoryId(), budget.getAmount(),listCategorySummaries.);
-        }
-         */
-
-
         return new DashboardResponse(balance,totals.get(0), totals.get(1), budgets);
 
     }

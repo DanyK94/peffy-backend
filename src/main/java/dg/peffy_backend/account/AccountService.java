@@ -82,7 +82,8 @@ public class AccountService {
     }
 
     public BigDecimal getBalance(Integer accountId){
-        return getBalance(accountId).add(transactionService.getSumTransactions(accountId));
+        Account account = accountRepository.findById(accountId).orElseThrow(()-> new ResourceNotFoundException("Account with ID: " + accountId + " not found."));
+        return account.getInitialBalance().add(transactionService.getSumTransactions(accountId));
     }
 
     private AccountResponse parseAccountResponse(Account account){
