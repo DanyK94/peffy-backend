@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import dg.peffy_backend.category.dto.CategoryResponse;
 import dg.peffy_backend.category.dto.CategorySummary;
+import dg.peffy_backend.category.dto.CategoryTotals;
 import dg.peffy_backend.category.dto.CreateCategoryRequest;
 import dg.peffy_backend.exception.ResourceNotFoundException;
 import dg.peffy_backend.user.UserService;
@@ -58,6 +59,17 @@ public class CategoryService {
         List<CategorySummary> cs = categoryRepository.findSumAmmountByCategoryForUser(userId, start, end);
         return cs;
     }
+
+    //------------------------
+    //GET CategoryTotals
+    //Montly Totals
+    public List<CategoryTotals> getCategoryTotals(List<Integer> accountsId, LocalDate dateMonth){
+        LocalDate startDate = dateMonth.withDayOfMonth(1);
+        LocalDate endDate = dateMonth.plusMonths(1).withDayOfMonth(1);
+        return categoryRepository.getCategoryTotals(accountsId, startDate, endDate);
+    }
+
+    //---------------------
     
     private CategoryResponse parseResponse(Category category){
         return new CategoryResponse(

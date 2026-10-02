@@ -19,7 +19,7 @@ public class DashboardController {
 
     @GetMapping("/{userId}")
     public DashboardResponse getDashboard(@PathVariable Integer userId) {
-        return dashboardService.defineUserDashboard(userId);
+        return dashboardService.getUserDashboard(userId);
     }
     
     

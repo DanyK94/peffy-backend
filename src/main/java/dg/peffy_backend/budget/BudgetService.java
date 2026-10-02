@@ -1,5 +1,6 @@
 package dg.peffy_backend.budget;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
@@ -42,6 +43,12 @@ public class BudgetService {
         List<Budget> budgets = budgetRepository.findAllByUserId(userId);
         if (budgets == null) {return Collections.emptyList();}
         return budgets.stream().map(this::parseBudget).toList();
+    }
+
+    public List<BudgetResponse> getUserBudgetsByMonth(Integer userId, LocalDate dateMonth){
+        LocalDate startDate = dateMonth.withDayOfMonth(1);
+        LocalDate endDate = dateMonth.plusMonths(1).withDayOfMonth(1);
+        return budgetRepository.getUserBudgetsByMonth(userId, startDate, endDate);
     }
 
 

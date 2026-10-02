@@ -21,7 +21,7 @@ public class BudgetSummaryResponse {
         this.categoryName = categoryName;
         this.budget = budget;
         this.spent = spent;
-        this.remaining = this.budget.add(this.spent);
+        this.remaining = this.budget.subtract(this.spent);
     }
 
     public BudgetSummaryResponse(Integer categoryId, String categoryName, BigDecimal budget, BigDecimal spent,
