@@ -2,6 +2,7 @@ package dg.peffy_backend.dashboard;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -41,38 +42,51 @@ public class DashboardService {
         List<AccountResponse> accounts = accountService.getAllAccountsByUserId(userId);
         List<Integer> accountIds = accounts.stream().map(AccountResponse::getId).toList();
 
-        // 2- Calculate Month Dates
-        //List<LocalDate> dates = getStartEndMonth(LocalDate.now());
 
-        // 2- Calculate Balance, Income and Expenses
+
+
+        // 2- Calculate Balance
         TransactionAccountTotal totals = transactionService.getAccountTotals(accountIds);
         //
-        BigDecimal income = totals.getIncome();
-        BigDecimal expenses = totals.getExpenses();
         BigDecimal initBalance = accounts.stream().map(AccountResponse::getInitialBalance).filter(Objects::nonNull).reduce(BigDecimal.ZERO,  BigDecimal::add);
-        BigDecimal balance = initBalance.add(income).subtract(expenses);
+        BigDecimal balance = initBalance.add(totals.getIncome()).subtract(totals.getExpenses());
 
-        // 3- Get Monthly Budgets
+        // 3- Calculate Month Dates and Income and Expenses Monthly
+        List<LocalDate> dates = getStartEndMonth(LocalDate.now());
+        TransactionAccountTotal monthTotals = transactionService.getAccountTotals(accountIds, dates.get(0), dates.get(1));
+        BigDecimal monthlyIncome = monthTotals.getIncome();
+        BigDecimal monthlyExpenses = monthTotals.getExpenses();
+
+        // 4- Get Monthly Budgets
         List<BudgetResponse> budgets = budgetService.getUserBudgetsByMonth(userId, LocalDate.now());
 
-        // 4-Expenses for category
+        // 5-Expenses for category
         List<CategoryTotals> categoryTotals = categoryService.getCategoryTotals(accountIds, LocalDate.now());
     
-        // 5- Budget Summary Response
+        // 6- Budget Summary Response
         List<BudgetSummaryResponse> bSummaries = new ArrayList<>();
 
         for (BudgetResponse budget : budgets) {
 
-            CategoryTotals category = categoryTotals.stream().filter(s -> s.getCategoryId().equals(budget.getCategoryId())).findFirst().orElse(null);
-            BudgetSummaryResponse bSummary = new BudgetSummaryResponse(budget.getCategoryId(), category.getCategoryName() ,budget.getAmount(), category.getTotal());
+            CategoryTotals category = categoryTotals.stream()
+                .filter(s -> s.getCategoryId().equals(budget.getCategoryId()))
+                .findFirst().orElse(null);
+            BigDecimal spent = BigDecimal.ZERO;
+            String categoryName = "Unkown";
+
+            if(category != null) {
+                spent = category.getTotal();
+                categoryName = category.getCategoryName();
+            }
+            BudgetSummaryResponse bSummary = new BudgetSummaryResponse(budget.getCategoryId(), categoryName ,budget.getAmount(), spent);
             bSummaries.add(bSummary);
         }
 
 
         // 6-Build Dashboard
         DashboardResponse dashboard = new DashboardResponse();
-        dashboard.setMonthlyExpenses(expenses);
-        dashboard.setMonthlyIncome(income);
+        dashboard.setMonthlyExpenses(monthlyExpenses);
+        dashboard.setMonthlyIncome(monthlyIncome);
         dashboard.setTotalBalance(balance);
         dashboard.setBudgets(bSummaries);
 
@@ -81,7 +95,7 @@ public class DashboardService {
     }
 
 
-    /*
+
     private List<LocalDate> getStartEndMonth(LocalDate reference){
         YearMonth ymonth = YearMonth.from(reference);
 
@@ -90,7 +104,6 @@ public class DashboardService {
         dates.add(ymonth.atEndOfMonth());
         return dates;
     }
-    */
 
 }
 
