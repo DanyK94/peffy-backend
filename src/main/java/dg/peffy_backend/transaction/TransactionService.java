@@ -1,20 +1,18 @@
 package dg.peffy_backend.transaction;
 
 import dg.peffy_backend.account.AccountRepository;
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
-
-import dg.peffy_backend.budget.dto.BudgetSummaryResponse;
 import dg.peffy_backend.category.CategoryService;
 import dg.peffy_backend.exception.ResourceNotFoundException;
 import dg.peffy_backend.transaction.dto.CreateTransactionRequest;
+import dg.peffy_backend.transaction.dto.TransactionAccountTotal;
 import dg.peffy_backend.transaction.dto.TransactionResponse;
-import dg.peffy_backend.transaction.dto.TransactionTotals;
+import dg.peffy_backend.transaction.dto.TransactionCategoryTotals;
 
 @Service 
 public class TransactionService {
@@ -76,50 +74,30 @@ public class TransactionService {
 
     }
 
-    public List<BudgetSummaryResponse> getBudgetSummaryResponses(Integer userId, LocalDate startDate, LocalDate enDate){
-        return transactionRepository.queryBudgetSummary(userId, startDate, enDate);
-    }
 
-    public List<BudgetSummaryResponse> getTotalForBudgets(Integer userId, LocalDate startDate, LocalDate endDate){
-        return transactionRepository.queryBudgetSummary(userId, startDate, endDate);
-    }
     // **********
-    // GET ACCOUNT TRANSACTION TOTALS
-    public TransactionTotals getAccountTotals(List<Integer> accountsId, LocalDate startDate, LocalDate endDate){
+    // GET ACCOUNT TRANSACTION TOTALS (BETWEEN DATES)
+    public TransactionAccountTotal getAccountTotals(List<Integer> accountsId, LocalDate startDate, LocalDate endDate){
         return transactionRepository.getAccountTotals(accountsId, startDate, endDate);
-    }    
-    public TransactionTotals getAccountTotals(List<Integer> accountsId){
+    }
+    
+    public TransactionAccountTotal getAccountTotals(List<Integer> accountsId){
         return transactionRepository.getAccountTotals(accountsId);
-    }
-    public TransactionTotals getAccountTotals(Integer accountId, LocalDate startDate, LocalDate endDate){
-        return transactionRepository.getAccountTotals(accountId, startDate, endDate);
-    }
-    public TransactionTotals getAccountTotals(Integer accountId){
-        return transactionRepository.getAccountTotals(accountId);
     }
 
     // *******
-    // GET USER CATEGORY TRANSACTION TOTAL
-    public List<TransactionTotals> getCategoryTotals(List<Integer> accountsId, LocalDate startDate, LocalDate endDate ){
+    // GET LIST OF A CALCULATION FOR CATEGORY'S TRANSACTION FOR ACCOUNTS'S USER
+    public List<TransactionCategoryTotals> getCategoryTotals(List<Integer> accountsId, LocalDate startDate, LocalDate endDate ){
         return transactionRepository.getCategoryTotals(accountsId, startDate, endDate);
     }
 
-    public List<TransactionTotals> getCategoryTotals(List<Integer> accountsId, LocalDate dateMonth){
+    public List<TransactionCategoryTotals> getCategoryTotals(List<Integer> accountsId, LocalDate dateMonth){
         LocalDate startDate = dateMonth.withDayOfMonth(1);
         LocalDate endDate = dateMonth.plusMonths(1).withDayOfMonth(1);
         return transactionRepository.getCategoryTotals(accountsId, startDate, endDate);
     }
 
     // *****
-
-
-    public List<BigDecimal> getTAmountsForDates(List<Integer> accountsId, LocalDate startDate, LocalDate endDate){
-        return transactionRepository.queryTAmountsForDates(accountsId, startDate, endDate);
-    }
-
-    public BigDecimal getSumTransactions(Integer accountId){
-        return transactionRepository.findSumTransactions(accountId);  
-    }
 
     public TransactionResponse parseTransaction(Transaction transaction){
         return new TransactionResponse(
@@ -131,9 +109,6 @@ public class TransactionService {
         transaction.getTransDescription(),
         transaction.getNotes(),
         transaction.getCreatedAt()
-        ); 
+        );
     }
-
-
-    
 }

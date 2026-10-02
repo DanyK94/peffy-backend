@@ -1,6 +1,5 @@
 package dg.peffy_backend.account;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -18,7 +17,6 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final UserService userService;
-    private final TransactionService transactionService;
 
 
     public AccountService(AccountRepository accountRepository,
@@ -26,7 +24,6 @@ public class AccountService {
         
         this.accountRepository = accountRepository;
         this.userService = userService;
-        this.transactionService = transactionService;
     }
 
     public AccountResponse createAccount(CreateAccountRequest request){
@@ -79,11 +76,6 @@ public class AccountService {
         List<Account> listAccounts = accountRepository.findByUserId(userId);
         if (listAccounts == null) { return Collections.emptyList();}
         return listAccounts.stream().map(this::parseAccountResponse).toList();
-    }
-
-    public BigDecimal getBalance(Integer accountId){
-        Account account = accountRepository.findById(accountId).orElseThrow(()-> new ResourceNotFoundException("Account with ID: " + accountId + " not found."));
-        return account.getInitialBalance().add(transactionService.getSumTransactions(accountId));
     }
 
     private AccountResponse parseAccountResponse(Account account){
