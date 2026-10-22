@@ -75,7 +75,7 @@ public class DashboardService {
             String categoryName = "Unkown";
 
             if(category != null) {
-                spent = category.getTotal();
+                spent = category.getTotal().negate();
                 categoryName = category.getCategoryName();
             }
             BudgetSummaryResponse bSummary = new BudgetSummaryResponse(budget.getCategoryId(), categoryName ,budget.getAmount(), spent);

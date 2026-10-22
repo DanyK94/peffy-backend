@@ -12,7 +12,9 @@ import dg.peffy_backend.exception.ResourceNotFoundException;
 import dg.peffy_backend.transaction.dto.CreateTransactionRequest;
 import dg.peffy_backend.transaction.dto.TransactionAccountTotal;
 import dg.peffy_backend.transaction.dto.TransactionResponse;
+import dg.peffy_backend.transaction.dto.Requests.TransactionListRequest;
 import dg.peffy_backend.transaction.dto.TransactionCategoryTotals;
+import dg.peffy_backend.transaction.dto.TransactionData;
 
 @Service 
 public class TransactionService {
@@ -95,6 +97,20 @@ public class TransactionService {
         LocalDate startDate = dateMonth.withDayOfMonth(1);
         LocalDate endDate = dateMonth.plusMonths(1).withDayOfMonth(1);
         return transactionRepository.getCategoryTotals(accountsId, startDate, endDate);
+    }
+
+    public List<TransactionData> getAllTransactionsDataByDate(TransactionListRequest request){
+
+        LocalDate startDate = LocalDate.ofYearDay(1600, 1);
+        LocalDate endDate = LocalDate.ofYearDay(3600, 1);
+
+        if (request.getStartDate() != null){
+            startDate = request.getStartDate();
+        }
+        if (request.getEndDate() != null){
+            endDate = request.getEndDate();
+        }
+        return transactionRepository.getTransactionsData(request.getAccountId(), startDate, endDate);
     }
 
     // *****

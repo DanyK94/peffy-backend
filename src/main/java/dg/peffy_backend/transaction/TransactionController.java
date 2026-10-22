@@ -10,16 +10,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 
 import dg.peffy_backend.transaction.dto.CreateTransactionRequest;
+import dg.peffy_backend.transaction.dto.TransactionData;
 import dg.peffy_backend.transaction.dto.TransactionResponse;
+import dg.peffy_backend.transaction.dto.Requests.TransactionListRequest;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-
-
-
-
-
 
 
 @RestController 
@@ -46,6 +43,12 @@ public class TransactionController {
     public TransactionResponse createTransaction( @Valid @RequestBody CreateTransactionRequest request) {
         return transactionService.createTransaction(request);
     }
+
+    @GetMapping("/temporal")
+    public List<TransactionData> getAllTransactionByMonth(@Valid @RequestBody TransactionListRequest request) {
+        return transactionService.getAllTransactionsDataByDate(request);
+    }
+    
 
     
     
