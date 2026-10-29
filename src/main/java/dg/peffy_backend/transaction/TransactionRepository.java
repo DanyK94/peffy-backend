@@ -60,10 +60,10 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
     
     @Query ("""
         SELECT new dg.peffy_backend.transaction.dto.TransactionData (
-        t.id, t.amount, t.categoryId, c.categoryName, t.accountId, t.transDescription, t.transactionDate, t.note
+        t.id, t.amount, t.categoryId, c.categoryName, t.accountId, t.transDescription, t.transactionDate, t.notes
         )
         FROM Transaction t 
-        JOIN category c ON t.categoryId = c.id
+        JOIN Category c ON t.categoryId = c.id
         WHERE t.accountId IN :accountsId
         AND t.transactionDate >= :startDate
         AND t.transactionDate <= :endDate

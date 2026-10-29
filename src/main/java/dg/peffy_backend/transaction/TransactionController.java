@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -44,9 +45,10 @@ public class TransactionController {
         return transactionService.createTransaction(request);
     }
 
-    @GetMapping("/temporal")
-    public List<TransactionData> getAllTransactionByMonth(@Valid @RequestBody TransactionListRequest request) {
-        return transactionService.getAllTransactionsDataByDate(request);
+    @PostMapping("/filter")
+    public ResponseEntity<List<TransactionData>> getAllTransactionByMonth(@Valid @RequestBody TransactionListRequest request) {
+        List<TransactionData> transactions = transactionService.getAllTransactionsDataByDate(request);
+        return ResponseEntity.ok(transactions);
     }
     
 

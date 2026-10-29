@@ -8,11 +8,23 @@ public class TransactionData {
     private Integer id;
     private BigDecimal amount;
     private Integer categoryId;
-    private Integer categoryName;
+    private String categoryName;
     private Integer accountId;
     private String transDescription;
     private LocalDate transactionDate;
     private String notes;
+
+    public TransactionData(Integer id, BigDecimal amount, Integer categoryId, String categoryName, Integer accountId,
+            String transDescription, LocalDate transactionDate, String notes) {
+        this.id = id;
+        this.amount = amount;
+        this.categoryId = categoryId;
+        this.categoryName = categoryName;
+        this.accountId = accountId;
+        this.transDescription = transDescription;
+        this.transactionDate = transactionDate;
+        this.notes = notes;
+    }
 
     public TransactionData(){
 
@@ -42,11 +54,11 @@ public class TransactionData {
         this.categoryId = categoryId;
     }
 
-    public Integer getCategoryName() {
+    public String getCategoryName() {
         return categoryName;
     }
 
-    public void setCategoryName(Integer categoryName) {
+    public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
     }
         public Integer getAccountId() {
