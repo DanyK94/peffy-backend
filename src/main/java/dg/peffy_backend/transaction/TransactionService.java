@@ -42,7 +42,8 @@ public class TransactionService {
 
         BigDecimal balance = aSummary.getBalance();
         TransactionAccountTotal total = getAccountTotals(List.of(aSummary.getAccountId()));
-        balance = balance.add(total.getIncome()).subtract(total.getExpenses());
+        balance = balance.add(total.getIncome());
+        balance =balance.subtract(total.getExpenses());
         aSummary.setBalance(balance);
         return  aSummary;
     }

@@ -36,7 +36,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
         FROM Transaction t 
         WHERE t.accountId IN :accountsId
         AND t.transactionDate >= :startDate
-        AND t.transactionDate <= :endDate
+        AND t.transactionDate < :endDate
         """)
     public TransactionAccountTotal getAccountTotals(@Param("accountsId") List<Integer> accountsId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
@@ -50,7 +50,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
         FROM Transaction t 
         WHERE t.accountId IN :accountsId
         AND t.transactionDate >= :startDate
-        AND t.transactionDate <= :endDate
+        AND t.transactionDate < :endDate
         GROUP BY t.categoryId
         """)
     public List<TransactionCategoryTotals> getCategoryTotals(@Param("accountsId") List<Integer> accountsId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
@@ -66,7 +66,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
         JOIN Category c ON t.categoryId = c.id
         WHERE t.accountId IN :accountsId
         AND t.transactionDate >= :startDate
-        AND t.transactionDate <= :endDate
+        AND t.transactionDate < :endDate
         """)
     public List<TransactionData> getTransactionsData(@Param("accountsId") List<Integer> accountsId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 

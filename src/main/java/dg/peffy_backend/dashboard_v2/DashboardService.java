@@ -47,15 +47,11 @@ public class DashboardService {
     }
 
     private DashboardResponse calcTotals(DashboardResponse response){
-        BigDecimal balance = BigDecimal.ZERO;
-        BigDecimal income = BigDecimal.ZERO;
-        BigDecimal expenses = BigDecimal.ZERO;
 
-        for (AccountSummary aSumm : response.getAccountSummList()) {
-            balance.add(aSumm.getBalance());
-            income.add(aSumm.getIncome());
-            expenses.add(aSumm.getExpenses());
-        }
+        BigDecimal balance = response.getAccountSummList().stream().map(AccountSummary::getBalance).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal income = response.getAccountSummList().stream().map(AccountSummary::getIncome).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal expenses = response.getAccountSummList().stream().map(AccountSummary::getExpenses).reduce(BigDecimal.ZERO, BigDecimal::add);
+        
         response.setBalance(balance);
         response.setMonthIncome(income);
         response.setMonthExpenses(expenses);
