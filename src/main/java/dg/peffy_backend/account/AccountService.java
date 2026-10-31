@@ -1,5 +1,6 @@
 package dg.peffy_backend.account;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import dg.peffy_backend.account.dto.AccountResponse;
+import dg.peffy_backend.account.dto.AccountSummary;
 import dg.peffy_backend.account.dto.CreateAccountRequest;
 import dg.peffy_backend.exception.ResourceNotFoundException;
 import dg.peffy_backend.transaction.TransactionService;
@@ -16,15 +18,43 @@ import dg.peffy_backend.user.UserService;
 public class AccountService {
 
     private final AccountRepository accountRepository;
+    private final TransactionService transactionService;
     private final UserService userService;
 
-
+    
     public AccountService(AccountRepository accountRepository,
         UserService userService, TransactionService transactionService){
         
         this.accountRepository = accountRepository;
         this.userService = userService;
+        this.transactionService = transactionService;
     }
+
+    // ____V2___ BY ACCOUNT ID AND TIMERANGE BUILD AN ACCOUNT SUMMARY DATA
+    public List<AccountSummary> getAllAccountSummary(Integer userId, LocalDate sDate, LocalDate eDate){
+        List<AccountResponse> accoList = getAllAccountsByUserId(userId);
+        List<AccountSummary> listAcSumm = new ArrayList<>();
+
+        for (AccountResponse ar : accoList) {
+            listAcSumm.add(getAccountSummary(ar.getId(), sDate, eDate));            
+        }
+
+        return  listAcSumm;
+    }
+
+    public AccountSummary getAccountSummary(Integer accountId, LocalDate sDate, LocalDate eDate){
+        AccountSummary aSummary = new AccountSummary(); 
+        Account account = accountRepository.findById(accountId).orElseThrow(() -> new ResourceNotFoundException("Account with ID: " + accountId + " not found."));
+        aSummary.setAccountData(account);
+        aSummary.setBalance(account.getInitialBalance());
+
+        aSummary.setStartDateSum(sDate);
+        aSummary.setEndDateSum(eDate);
+        aSummary = transactionService.populateAccountValues(aSummary);
+        return aSummary;
+    }
+
+    /////////////////////
 
     public AccountResponse createAccount(CreateAccountRequest request){
 

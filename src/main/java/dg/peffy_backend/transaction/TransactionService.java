@@ -1,6 +1,9 @@
 package dg.peffy_backend.transaction;
 
 import dg.peffy_backend.account.AccountRepository;
+import dg.peffy_backend.account.dto.AccountSummary;
+
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Collections;
@@ -30,6 +33,20 @@ public class TransactionService {
         this.categoryService = categoryService;
         this.accountRepository = accountRepository;
     }
+
+    //___V2___ GET A PARTIALLY POPULATED ACCOUNT SUMMARY DATA AND POPULATE WITH TRANSACTION RELATED DATAS
+    public AccountSummary populateAccountValues (AccountSummary aSummary){
+        TransactionAccountTotal tTotal = getAccountTotals( List.of(aSummary.getAccountId()), aSummary.getStartDateSum(), aSummary.getEndDateSum());
+        aSummary.setIncome(tTotal.getIncome());
+        aSummary.setExpenses(tTotal.getExpenses());
+
+        BigDecimal balance = aSummary.getBalance();
+        TransactionAccountTotal total = getAccountTotals(List.of(aSummary.getAccountId()));
+        balance = balance.add(total.getIncome()).subtract(total.getExpenses());
+        aSummary.setBalance(balance);
+        return  aSummary;
+    }
+    //
 
 
     public TransactionResponse getTransactionById(Integer id){
@@ -111,6 +128,10 @@ public class TransactionService {
             endDate = request.getEndDate();
         }
         return transactionRepository.getTransactionsData(request.getAccountId(), startDate, endDate);
+    }
+
+    public List<TransactionData> getAllTransactionsDataByDate(List<Integer> accountIds, LocalDate sDate, LocalDate eDate){
+        return transactionRepository.getTransactionsData(accountIds, sDate, eDate);
     }
 
     // *****

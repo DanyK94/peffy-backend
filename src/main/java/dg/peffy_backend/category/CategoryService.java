@@ -63,6 +63,12 @@ public class CategoryService {
         return categoryRepository.getCategoryTotals(accountsId, startDate, endDate);
     }
 
+    public List<CategoryTotals> getCategoryTotals(List<Integer> accountsId, LocalDate sDate, LocalDate eDate){
+        LocalDate startDate = sDate;
+        LocalDate endDate = eDate;
+        return categoryRepository.getCategoryTotals(accountsId, startDate, endDate);
+    }
+
     //---------------------
     
     private CategoryResponse parseResponse(Category category){
