@@ -11,13 +11,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import dg.peffy_backend.auth.RefreshTokenService;
+import dg.peffy_backend.auth.dto.LoginResult;
 import dg.peffy_backend.exception.DuplicateResourceException;
 import dg.peffy_backend.exception.InvalidCredentialsException;
 import dg.peffy_backend.exception.ResourceNotFoundException;
 import dg.peffy_backend.security.JwtService;
 import dg.peffy_backend.user.dto.CreateUserRequest;
 import dg.peffy_backend.user.dto.LoginRequest;
-import dg.peffy_backend.user.dto.LoginResponse;
 import dg.peffy_backend.user.dto.UserResponse;
 
 @Service 
@@ -27,11 +28,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final RefreshTokenService refreshTokenService;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService, RefreshTokenService refreshTokenService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.refreshTokenService = refreshTokenService;
     }
 
     //______ USER CREATION ________ //
@@ -67,18 +70,19 @@ public class UserService {
 
     //_____________________________//
     //_________LOGIN______________//
-    @Transactional (readOnly = true)
-    public LoginResponse login(LoginRequest request){
+    @Transactional
+    public LoginResult login(LoginRequest request){
 
         User user = userRepository.findByEmail(request.email()).orElseThrow(InvalidCredentialsException::new);
 
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
             throw new InvalidCredentialsException();
         }
+        String refreshToken = refreshTokenService.createRefreshToken(user);
         String accessToken = jwtService.generateAccessToken(user);
 
-        return new LoginResponse(
-            accessToken, "Bearer", jwtService.getAccessTokenExpirationSeconds(), mapToResponse(user)
+        return new LoginResult(
+            accessToken, "Bearer", jwtService.getAccessTokenExpirationSeconds(), mapToResponse(user), refreshToken
         );
 
     }

@@ -2,11 +2,15 @@ package dg.peffy_backend.user;
 
 import java.util.List;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import dg.peffy_backend.auth.config.RefreshTokenCookieConfig;
+import dg.peffy_backend.auth.dto.LoginResult;
 import dg.peffy_backend.user.dto.CreateUserRequest;
 import dg.peffy_backend.user.dto.LoginRequest;
 import dg.peffy_backend.user.dto.LoginResponse;
@@ -39,7 +43,23 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> loginAuthentication(@Valid @RequestBody LoginRequest request) {
-        return ResponseEntity.ok(userService.login(request));
+
+        LoginResult result = userService.login(request);
+
+        ResponseCookie refreshCookie = ResponseCookie
+            .from(RefreshTokenCookieConfig.COOKIE_NAME, result.refreshToken())
+            .httpOnly(true)
+            .secure(true)
+            .sameSite("Lax")
+            .path(RefreshTokenCookieConfig.COOKIE_PATH)
+            .maxAge(RefreshTokenCookieConfig.REFRESH_TOKEN_EXPIRATION_SECONDS)
+            .build();
+
+        LoginResponse response = new LoginResponse(result.accessToken(), result.tokenType(), result.expiresIn(), result.user());
+        
+        
+
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, refreshCookie.toString()).body(response);
     }
     
 
