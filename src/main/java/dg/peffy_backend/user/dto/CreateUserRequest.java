@@ -6,34 +6,47 @@ import jakarta.validation.constraints.Size;
 
 public class CreateUserRequest {
 
-    @NotBlank(message = "Username Required")
-    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 char")
-    private String username;
+    @NotBlank(message = "First name is required")
+    @Size(max = 100, message = "First name must not exceed 100 characters")
+    private String firstName;
+
+    @NotBlank(message = "Last name is required")
+    @Size(max = 100, message = "Last name must not exceed 100 characters")
+    private String lastName;
 
     @NotBlank(message = "Email Required")
     @Email(message = "Email is not Valid")
     @Size(max = 100, message = "Email must not exceed 100 char")
     private String email;
 
-    @NotBlank(message = "Password Required")
-    @Size(min = 8, max = 255, message = "Password must be between 8 and 255 char")
-    private String passw;
+    @NotBlank(message = "Password is required")
+    @Size(min = 8, max = 255, message = "Password must be between 8 and 255 characters")
+    private String password;
 
     public CreateUserRequest() {
     }
 
-    public CreateUserRequest(String username, String email, String passw) {
-        this.username = username;
+    public CreateUserRequest(String firstName, String lastName, String email, String password ) {
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.email = email;
-        this.passw = passw;
+        this.password = password;
     }
 
-    public String getUsername() {
-        return username;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getEmail() {
@@ -44,11 +57,11 @@ public class CreateUserRequest {
         this.email = email;
     }
 
-    public String getPassw() {
-        return passw;
+    public String getPassword() {
+        return password;
     }
 
-    public void setPassw(String passw) {
-        this.passw = passw;
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

@@ -1,160 +1,76 @@
--- ============================================================
--- USERS
--- ============================================================
+-- V2__insert_test_data.sql
+-- Dati di test (solo DEV). Nessun ID hardcoded: le FK vengono risolte per email/nome,
+-- così IDENTITY e SERIAL restano coerenti.
+-- Convenzione importi: entrate > 0, spese < 0.
 
-INSERT INTO users (id, username, email, passw)
-VALUES
-    (1, 'Alpha', 'alpha@peffy.com', 'password123'),
-    (2, 'Bravo', 'bravo@peffy.com', 'password123');
+-- =========================
+-- USER
+-- =========================
+-- password_hash: placeholder in formato bcrypt, sostituiscilo con un hash generato dal tuo PasswordEncoder
+INSERT INTO users (email, password_hash, first_name, last_name)
+VALUES ('mario.rossi@example.com',
+        '$2a$10$7EqJtq98hPqEX7fNZaFWoOhi5BEw5E3Z8a3c9Yc0u1x0vQ2xKQe6S',
+        'Mario',
+        'Rossi');
 
-
--- ============================================================
+-- =========================
 -- ACCOUNTS
--- User 1
--- ============================================================
+-- =========================
+INSERT INTO accounts (user_id, account_name, account_type, currency, initial_balance)
+VALUES ((SELECT id FROM users WHERE email = 'mario.rossi@example.com'), 'Conto Corrente', 'CHECKING', 'EUR', 1500.0000),
+       ((SELECT id FROM users WHERE email = 'mario.rossi@example.com'), 'Conto Risparmio', 'SAVINGS',  'EUR', 5000.0000);
 
-INSERT INTO accounts (
-    id,
-    user_id,
-    account_name,
-    account_type,
-    currency,
-    initial_balance
-)
-VALUES
-    (1, 1, 'Intesa', 'BANK', 'EUR', 2000.00),
-    (2, 1, 'Revolut', 'BANK', 'EUR', 1000.00),
-    (3, 1, 'Cash', 'CASH', 'EUR', 300.00),
-
--- User 2
-    (4, 2, 'Test Bank', 'BANK', 'EUR', 1500.00);
-
-
--- ============================================================
+-- =========================
 -- CATEGORIES
--- User 1
--- ============================================================
+-- =========================
+-- Categorie radice
+INSERT INTO categories (user_id, category_name, category_type, parent_id)
+VALUES ((SELECT id FROM users WHERE email = 'mario.rossi@example.com'), 'Stipendio',  'INCOME',  NULL),
+       ((SELECT id FROM users WHERE email = 'mario.rossi@example.com'), 'Interessi',  'INCOME',  NULL),
+       ((SELECT id FROM users WHERE email = 'mario.rossi@example.com'), 'Casa',       'EXPENSE', NULL),
+       ((SELECT id FROM users WHERE email = 'mario.rossi@example.com'), 'Alimentari', 'EXPENSE', NULL),
+       ((SELECT id FROM users WHERE email = 'mario.rossi@example.com'), 'Trasporti',  'EXPENSE', NULL),
+       ((SELECT id FROM users WHERE email = 'mario.rossi@example.com'), 'Svago',      'EXPENSE', NULL);
 
-INSERT INTO categories (
-    id,
-    user_id,
-    category_name,
-    category_type,
-    parent_id
-)
-VALUES
-    (1, 1, 'Food', 'EXPENSE', NULL),
-    (2, 1, 'Groceries', 'EXPENSE', 1),
-    (3, 1, 'Restaurant', 'EXPENSE', 1),
-    (4, 1, 'Transport', 'EXPENSE', NULL),
-    (5, 1, 'Fuel', 'EXPENSE', 4),
-    (6, 1, 'Entertainment', 'EXPENSE', NULL),
+-- Sottocategorie di "Casa"
+INSERT INTO categories (user_id, category_name, category_type, parent_id)
+SELECT p.user_id, v.name, 'EXPENSE', p.id
+FROM categories p
+         CROSS JOIN (VALUES ('Affitto'), ('Bollette')) AS v(name)
+WHERE p.category_name = 'Casa'
+  AND p.user_id = (SELECT id FROM users WHERE email = 'mario.rossi@example.com');
 
--- User 2
-    (7, 2, 'Food', 'EXPENSE', NULL),
-    (8, 2, 'Transport', 'EXPENSE', NULL);
+-- =========================
+-- TRANSACTIONS (settembre - ottobre 2026)
+-- =========================
+INSERT INTO transactions (account_id, category_id, transaction_date, amount, t_description, notes)
+SELECT a.id, c.id, v.tx_date, v.amount, v.descr, v.notes
+FROM (VALUES
+          -- Settembre 2026
+          (DATE '2026-09-01', 'Conto Corrente', 'Affitto',     -750.00, 'Affitto settembre',        NULL),
+          (DATE '2026-09-03', 'Conto Corrente', 'Alimentari',   -62.40, 'Spesa supermercato',       NULL),
+          (DATE '2026-09-05', 'Conto Corrente', 'Trasporti',    -45.00, 'Abbonamento bus',          'Mensile'),
+          (DATE '2026-09-10', 'Conto Corrente', 'Bollette',     -88.30, 'Bolletta luce',            NULL),
+          (DATE '2026-09-12', 'Conto Corrente', 'Svago',        -28.00, 'Cinema e pizza',           'Con amici'),
+          (DATE '2026-09-15', 'Conto Corrente', 'Alimentari',   -41.75, 'Spesa supermercato',       NULL),
+          (DATE '2026-09-20', 'Conto Corrente', 'Trasporti',    -55.00, 'Rifornimento carburante',  NULL),
+          (DATE '2026-09-27', 'Conto Corrente', 'Stipendio',   2200.00, 'Stipendio settembre',      NULL),
+          (DATE '2026-09-28', 'Conto Corrente', NULL,          -500.00, 'Trasferimento a risparmio','Giroconto'),
+          (DATE '2026-09-28', 'Conto Risparmio', NULL,          500.00, 'Trasferimento da conto corrente', 'Giroconto'),
+          (DATE '2026-09-30', 'Conto Risparmio', 'Interessi',     3.20, 'Interessi trimestrali',    NULL),
 
-
--- ============================================================
--- BUDGETS
--- User 1 - October 2026
--- ============================================================
-
-INSERT INTO budgets (
-    id,
-    user_id,
-    category_id,
-    amount,
-    b_month
-)
-VALUES
-    (1, 1, 1, 500.00, '2026-10-01'),
-    (2, 1, 4, 200.00, '2026-10-01'),
-    (3, 1, 6, 150.00, '2026-10-01'),
-
--- User 2
-    (4, 2, 7, 300.00, '2026-10-01');
-
-
--- ============================================================
--- TRANSACTIONS
--- User 1
--- ============================================================
-
-INSERT INTO transactions (
-    id,
-    account_id,
-    category_id,
-    transaction_date,
-    amount,
-    t_description,
-    notes
-)
-VALUES
-
--- Intesa
-    (1, 1, NULL, '2026-10-01', 2500.00, 'Salary', 'October salary'),
-
-    (2, 1, 2, '2026-10-02', -80.00, 'Groceries', 'Weekly groceries'),
-    (3, 1, 3, '2026-10-03', -50.00, 'Restaurant', 'Dinner'),
-
--- Revolut
-    (4, 2, 2, '2026-10-04', -120.00, 'Groceries', 'Supermarket'),
-
-    (5, 2, 5, '2026-10-05', -60.00, 'Fuel', 'Car fuel'),
-
-    (6, 2, 6, '2026-10-06', -40.00, 'Cinema', 'Movie'),
-
--- Cash
-    (7, 3, 3, '2026-10-07', -30.00, 'Restaurant', 'Lunch'),
-
-    (8, 3, 5, '2026-10-08', -20.00, 'Fuel', 'Parking/fuel');
-
-
--- ============================================================
--- TRANSACTIONS
--- User 2
--- ============================================================
-
-INSERT INTO transactions (
-    id,
-    account_id,
-    category_id,
-    transaction_date,
-    amount,
-    t_description,
-    notes
-)
-VALUES
-    (9, 4, NULL, '2026-10-01', 2000.00, 'Salary', 'October salary'),
-    (10, 4, 7, '2026-10-03', -100.00, 'Groceries', 'Weekly groceries');
-
-
--- ============================================================
--- RESET SEQUENCES
--- ============================================================
-
-SELECT setval(
-    pg_get_serial_sequence('users', 'id'),
-    (SELECT MAX(id) FROM users)
-);
-
-SELECT setval(
-    pg_get_serial_sequence('accounts', 'id'),
-    (SELECT MAX(id) FROM accounts)
-);
-
-SELECT setval(
-    pg_get_serial_sequence('categories', 'id'),
-    (SELECT MAX(id) FROM categories)
-);
-
-SELECT setval(
-    pg_get_serial_sequence('budgets', 'id'),
-    (SELECT MAX(id) FROM budgets)
-);
-
-SELECT setval(
-    pg_get_serial_sequence('transactions', 'id'),
-    (SELECT MAX(id) FROM transactions)
-);
+          -- Ottobre 2026
+          (DATE '2026-10-01', 'Conto Corrente', 'Affitto',     -750.00, 'Affitto ottobre',          NULL),
+          (DATE '2026-10-04', 'Conto Corrente', 'Alimentari',   -78.90, 'Spesa supermercato',       NULL),
+          (DATE '2026-10-05', 'Conto Corrente', 'Trasporti',    -45.00, 'Abbonamento bus',          'Mensile'),
+          (DATE '2026-10-09', 'Conto Corrente', 'Bollette',     -54.10, 'Bolletta gas',             NULL),
+          (DATE '2026-10-11', 'Conto Corrente', 'Svago',        -65.00, 'Concerto',                 'Biglietti'),
+          (DATE '2026-10-16', 'Conto Corrente', 'Alimentari',   -36.20, 'Spesa supermercato',       NULL),
+          (DATE '2026-10-18', 'Conto Corrente', 'Trasporti',    -60.00, 'Rifornimento carburante',  NULL),
+          (DATE '2026-10-22', 'Conto Corrente', 'Svago',        -19.99, 'Abbonamento streaming',    NULL),
+          (DATE '2026-10-27', 'Conto Corrente', 'Stipendio',   2200.00, 'Stipendio ottobre',        NULL),
+          (DATE '2026-10-28', 'Conto Corrente', NULL,          -500.00, 'Trasferimento a risparmio','Giroconto'),
+          (DATE '2026-10-28', 'Conto Risparmio', NULL,          500.00, 'Trasferimento da conto corrente', 'Giroconto')
+     ) AS v(tx_date, account_name, category_name, amount, descr, notes)
+         JOIN accounts a ON a.account_name = v.account_name
+         LEFT JOIN categories c ON c.category_name = v.category_name;

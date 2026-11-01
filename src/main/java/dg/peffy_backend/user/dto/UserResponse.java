@@ -1,59 +1,60 @@
 package dg.peffy_backend.user.dto;
-
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 public class UserResponse {
 
     private Integer id;
-    private String username;
+    private String fistName;
+    private String lastName;
     private String email;
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 
-    public UserResponse(Integer id, String username, String email, Instant createdAt) {
+    public UserResponse(Integer id, String fistName, String lastName, String email, LocalDateTime createdAt) {
         this.id = id;
-        this.username = username;
+        this.fistName = fistName;
+        this.lastName = lastName;
         this.email = email;
         this.createdAt = createdAt;
     }
 
-    
     public Integer getId() {
         return id;
     }
-
 
     public void setId(Integer id) {
         this.id = id;
     }
 
-
-    public String getUsername() {
-        return username;
+    public String getFistName() {
+        return fistName;
     }
 
-
-    public void setUsername(String username) {
-        this.username = username;
+    public void setFistName(String fistName) {
+        this.fistName = fistName;
     }
 
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
 
     public String getEmail() {
         return email;
     }
 
-
     public void setEmail(String email) {
         this.email = email;
     }
 
-
-    public Instant getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-
-    public void setCreatedAt(Instant createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
-    
+
 }

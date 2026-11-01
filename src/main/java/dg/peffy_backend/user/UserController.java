@@ -3,10 +3,13 @@ package dg.peffy_backend.user;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import dg.peffy_backend.user.dto.CreateUserRequest;
+import dg.peffy_backend.user.dto.LoginRequest;
+import dg.peffy_backend.user.dto.LoginResponse;
 import dg.peffy_backend.user.dto.UserResponse;
 import jakarta.validation.Valid;
 
@@ -27,11 +30,17 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping ("/")
+    @PostMapping ("/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public UserResponse createUser(@Valid @RequestBody CreateUserRequest request) {
-        return userService.CreateUser(request);
+    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest request) {
+        return userService.createUser(request);
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> loginAuthentication(@Valid @RequestBody LoginRequest request) {
+        return ResponseEntity.ok(userService.login(request));
+    }
+    
 
     @GetMapping("/{id}")
     public UserResponse getUserById(@PathVariable Integer id) {
