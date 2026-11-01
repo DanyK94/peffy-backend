@@ -55,4 +55,8 @@ public class JwtService {
     public long getAccessTokenExpirationSeconds() {
         return expirationMs / 1000;
     }
+
+    public Integer extractUserId(String token){
+        return Integer.valueOf(parseClaims(token).getSubject());
+    }
 }

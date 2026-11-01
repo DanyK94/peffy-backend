@@ -108,5 +108,20 @@ public class UserService {
     public void DeleteUser(Integer id) {
         userRepository.deleteById(id);
     }
+
+
+    //ADMIN LV1
     
+    public List<User> GetAllUsersMaster() {
+        List<User> listUser = userRepository.findAll();
+        return listUser;
+    }
+
+    @Transactional 
+    public User UpdatePassword(Integer userId, String password){
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        user.setPasswordHash(passwordEncoder.encode(password));
+        user = userRepository.save(user);
+        return user;
+    }
 }

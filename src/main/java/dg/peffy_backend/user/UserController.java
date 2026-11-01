@@ -11,6 +11,7 @@ import dg.peffy_backend.user.dto.CreateUserRequest;
 import dg.peffy_backend.user.dto.LoginRequest;
 import dg.peffy_backend.user.dto.LoginResponse;
 import dg.peffy_backend.user.dto.UserResponse;
+import dg.peffy_backend.user.dto.DebugDto.PassUpRequest;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,9 +48,20 @@ public class UserController {
         return userService.getUserById(id);
     }
 
-    @GetMapping("/")
+    @PostMapping("/")
     public List<UserResponse> getAllUsers() {
         return userService.GetAllUsers();
-    }   
+    } 
+    
+    ////ADMIN LV1
+    @PostMapping("/master/")
+    public List<User> getAllUsersMaster() {
+        return userService.GetAllUsersMaster();
+    } 
+
+    @PostMapping("/master/uspw")
+    public User updatePassword(@RequestBody PassUpRequest request){
+        return userService.UpdatePassword(request.id(), request.password());
+    }
     
 }
