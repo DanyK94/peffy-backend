@@ -1,4 +1,4 @@
-package dg.peffy_backend.auth;
+package dg.peffy_backend.auth.service;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -9,7 +9,10 @@ import java.util.Base64;
 
 import org.springframework.stereotype.Service;
 
+import dg.peffy_backend.auth.RefreshTokenRepository;
+import dg.peffy_backend.auth.dto.RefreshTokenResult;
 import dg.peffy_backend.auth.entity.RefreshToken;
+import dg.peffy_backend.exception.InvalidRefreshTokenException;
 import dg.peffy_backend.user.User;
 import jakarta.transaction.Transactional;
 
@@ -64,10 +67,10 @@ public class RefreshTokenService {
     public RefreshToken validateRefreshToken(String rawToken){
         String tokenHash = hashToken(rawToken);
 
-        RefreshToken refreshToken = refreshTokenRepository.findByTokenHash(tokenHash).orElseThrow(() -> new IllegalArgumentException("Invalid Refresh Token."));
+        RefreshToken refreshToken = refreshTokenRepository.findByTokenHash(tokenHash).orElseThrow(InvalidRefreshTokenException::new);
 
         if (refreshToken.isExpired()) {
-            throw new IllegalArgumentException("Refresh Token Expired");
+            throw new InvalidRefreshTokenException();
         }
         if (refreshToken.isRevoked()) {
             throw new IllegalArgumentException(
@@ -76,5 +79,21 @@ public class RefreshTokenService {
         }
 
         return refreshToken;
+    }
+
+    @Transactional 
+    public RefreshTokenResult rotateRefreshToken(String rawToken){
+        String tokenHash = hashToken(rawToken);
+
+        RefreshToken oldToken = refreshTokenRepository.findByTokenHashForUpdate(tokenHash).orElseThrow(InvalidRefreshTokenException::new);
+
+        if (oldToken.isExpired() || oldToken.isRevoked()) {
+            throw new InvalidRefreshTokenException();
+        }
+
+        User user = oldToken.getUser();
+        oldToken.revoke();
+        String newRefreshToken = createRefreshToken(user);
+        return new RefreshTokenResult(newRefreshToken,user);
     }
 }

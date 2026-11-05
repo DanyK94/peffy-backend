@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import dg.peffy_backend.auth.config.RefreshTokenCookieConfig;
+import dg.peffy_backend.auth.config.RefreshTokenCookieProperties;
 import dg.peffy_backend.auth.dto.LoginResult;
 import dg.peffy_backend.user.dto.CreateUserRequest;
 import dg.peffy_backend.user.dto.LoginRequest;
@@ -30,9 +31,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class UserController {
 
     private final UserService userService;
+    private final RefreshTokenCookieProperties cookieProperties;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, RefreshTokenCookieProperties cookieProperties) {
         this.userService = userService;
+        this.cookieProperties = cookieProperties;
     }
 
     @PostMapping ("/create")
@@ -49,7 +52,7 @@ public class UserController {
         ResponseCookie refreshCookie = ResponseCookie
             .from(RefreshTokenCookieConfig.COOKIE_NAME, result.refreshToken())
             .httpOnly(true)
-            .secure(true)
+            .secure(cookieProperties.secure())
             .sameSite("Lax")
             .path(RefreshTokenCookieConfig.COOKIE_PATH)
             .maxAge(RefreshTokenCookieConfig.REFRESH_TOKEN_EXPIRATION_SECONDS)

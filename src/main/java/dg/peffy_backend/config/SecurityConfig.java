@@ -1,5 +1,6 @@
 package dg.peffy_backend.config;
 
+
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,8 +14,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.security.web.util.matcher.AndRequestMatcher;
 
 import dg.peffy_backend.security.JwtAuthenticationFilter;
+import dg.peffy_backend.security.SpaCsrfTokenRequestHandler;
+import jakarta.servlet.DispatcherType;
 
 @Configuration 
 public class SecurityConfig {
@@ -31,15 +37,24 @@ public class SecurityConfig {
 
     @Bean 
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable())
+        http.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())
+                .requireCsrfProtectionMatcher(new AndRequestMatcher(CsrfFilter.DEFAULT_CSRF_MATCHER, request -> {
+                    String path = request.getServletPath();
+                    return path.equals("/api/users/login") || path.equals("/api/auth/refresh");
+                })))
             .cors(Customizer.withDefaults())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.POST,
+            .authorizeHttpRequests(auth -> auth
+                .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+                .requestMatchers(HttpMethod.POST,
                 "/api/users",
                 "/api/users/master/",
                 "/api/users/master/uspw",
-                "/api/users/login"
+                "/api/users/login",
+                "/api/auth/refresh"
             ).permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/auth/csrf").permitAll()
             .anyRequest().authenticated()
         ).addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
         .exceptionHandling(ex -> ex.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));

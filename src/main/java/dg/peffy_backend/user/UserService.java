@@ -11,8 +11,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import dg.peffy_backend.auth.RefreshTokenService;
 import dg.peffy_backend.auth.dto.LoginResult;
+import dg.peffy_backend.auth.service.RefreshTokenService;
 import dg.peffy_backend.exception.DuplicateResourceException;
 import dg.peffy_backend.exception.InvalidCredentialsException;
 import dg.peffy_backend.exception.ResourceNotFoundException;
@@ -64,7 +64,7 @@ public class UserService {
         }
     }
 
-    private UserResponse mapToResponse(User user){
+    public UserResponse mapToResponse(User user){
         return new UserResponse(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getCreatedAt());
     }
 

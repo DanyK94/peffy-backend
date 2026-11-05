@@ -18,6 +18,7 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Inte
     @Query("""
         SELECT rt
         FROM RefreshToken rt
+        JOIN FETCH rt.user
         WHERE rt.tokenHash = :tokenHash
     """)
     Optional<RefreshToken> findByTokenHashForUpdate(
