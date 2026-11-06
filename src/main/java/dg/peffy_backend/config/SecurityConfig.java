@@ -49,8 +49,6 @@ public class SecurityConfig {
                 .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                 .requestMatchers(HttpMethod.POST,
                 "/api/users",
-                "/api/users/master/",
-                "/api/users/master/uspw",
                 "/api/users/login",
                 "/api/auth/refresh"
             ).permitAll()
