@@ -74,9 +74,12 @@ public class UserController {
     @PostMapping("/")
     public List<UserResponse> getAllUsers() {
         return userService.GetAllUsers();
-    } 
+    }
+    
     
     ////ADMIN LV1
+    /// 
+    /* 
     @PostMapping("/master/")
     public List<User> getAllUsersMaster() {
         return userService.GetAllUsersMaster();
@@ -86,5 +89,6 @@ public class UserController {
     public User updatePassword(@RequestBody PassUpRequest request){
         return userService.UpdatePassword(request.id(), request.password());
     }
+    */
     
 }

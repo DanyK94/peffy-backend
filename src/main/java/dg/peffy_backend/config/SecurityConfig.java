@@ -48,7 +48,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                 .requestMatchers(HttpMethod.POST,
-                "/api/users",
+                "/api/users/create",
                 "/api/users/login",
                 "/api/auth/refresh"
             ).permitAll()
