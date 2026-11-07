@@ -1,13 +1,9 @@
 package dg.peffy_backend.category.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public class CreateCategoryRequest {
-
-    @NotNull(message = "UserId Cannot be empty")
-    private Integer userId;
 
     @NotBlank (message = "CategoryName Cannot be empty")
     @Size (max = 100)
@@ -19,25 +15,11 @@ public class CreateCategoryRequest {
 
     private Integer parentId;
     
-    public CreateCategoryRequest(Integer userId, String categoryName, String categoryType, Integer parentId){
-        this.userId = userId;
+    public CreateCategoryRequest(String categoryName, String categoryType, Integer parentId){
         this.categoryName = categoryName;
         this.categoryType = categoryType;
         this.parentId = parentId;
     }
-
-
-    public Integer getUserId() {
-        return userId;
-    }
-
-
-
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
-
-
 
     public String getCategoryName() {
         return categoryName;

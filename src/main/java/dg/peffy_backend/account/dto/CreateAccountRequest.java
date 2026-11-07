@@ -9,9 +9,6 @@ import jakarta.validation.constraints.Size;
 
 public class CreateAccountRequest {
 
-    @NotNull(message = "User ID is required")
-    private Integer userId;
-
     @NotBlank(message = "Account Name is Required")
     @Size(max = 100, message = "Account name must not exceed 100 characters")
     private String accountName;
@@ -31,20 +28,11 @@ public class CreateAccountRequest {
     public CreateAccountRequest() {
     }
 
-    public CreateAccountRequest(Integer userId, String accountName, String accountType, String currency, BigDecimal initialBalance) {
-        this.userId = userId;
+    public CreateAccountRequest(String accountName, String accountType, String currency, BigDecimal initialBalance) {
         this.accountName = accountName;
         this.accountType = accountType;
         this.currency = currency;
         this.initialBalance = initialBalance;
-    }
-
-    public Integer getUserId(){
-        return this.userId;
-    }
-
-    public void setUserId(Integer userId){
-        this.userId = userId;
     }
 
     public String getAccountName() {

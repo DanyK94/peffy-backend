@@ -12,6 +12,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import dg.peffy_backend.category.CategoryService;
 import dg.peffy_backend.exception.ResourceNotFoundException;
+import dg.peffy_backend.security.CurrentUserService;
 import dg.peffy_backend.transaction.dto.CreateTransactionRequest;
 import dg.peffy_backend.transaction.dto.TransactionAccountTotal;
 import dg.peffy_backend.transaction.dto.TransactionResponse;
@@ -25,13 +26,15 @@ public class TransactionService {
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
     private final CategoryService categoryService;
+    private final CurrentUserService currentUserService;
 
     public TransactionService(TransactionRepository transactionRepository,
-            CategoryService categoryService, AccountRepository accountRepository) {
+            CategoryService categoryService, AccountRepository accountRepository, CurrentUserService currentUserService) {
 
         this.transactionRepository = transactionRepository;
         this.categoryService = categoryService;
         this.accountRepository = accountRepository;
+        this.currentUserService = currentUserService;
     }
 
     //___V2___ GET A PARTIALLY POPULATED ACCOUNT SUMMARY DATA AND POPULATE WITH TRANSACTION RELATED DATAS
@@ -51,10 +54,14 @@ public class TransactionService {
 
 
     public TransactionResponse getTransactionById(Integer id){
-        return parseTransaction(transactionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Transaction with ID: " + id + " not found.")));
+        Integer userId = currentUserService.getCurrentUserId();
+        Transaction transaction = transactionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Transaction with ID: " + id + " not found."));
+        accountRepository.findByIdAndUserId(transaction.getAccountId(), userId).orElseThrow(() -> new ResourceNotFoundException("Transaction with ID: " + id + " not found."));
+        return  parseTransaction(transaction);
     }
 
-    public List<TransactionResponse> getAllTransactions(){
+    //TODO ----- Delete getAllTransactionAdmin
+    public List<TransactionResponse> getAllTransactionsAdmin(){
         List<Transaction> listTransactions = transactionRepository.findAll();
         
         if (listTransactions == null) {return Collections.emptyList();}
@@ -62,20 +69,26 @@ public class TransactionService {
         return listTransactions.stream().map(this::parseTransaction).toList();
     }
 
-    public List<TransactionResponse> getAllTransactionsByAccountId(Integer accountId){
-        List<Transaction> listTransactions = transactionRepository.findByAccountId(accountId);
-        
-        if (listTransactions == null) {return Collections.emptyList();}
+    public List<TransactionResponse> getAllTransactions(){
+        Integer userId = currentUserService.getCurrentUserId();
+        List<Transaction> listTransactions = transactionRepository.findAllUserTransactions(userId);
+        return listTransactions.stream().map(this::parseTransaction).toList();
+    }
 
+    public List<TransactionResponse> getAllTransactionsByAccountId(Integer accountId){
+        //Check AccountID
+        Integer userId = currentUserService.getCurrentUserId();
+        accountRepository.findByIdAndUserId(accountId, userId).orElseThrow(() -> new ResourceNotFoundException("Account with ID: "+ accountId + " not found"));
+        List<Transaction> listTransactions = transactionRepository.findByAccountId(accountId);
         return listTransactions.stream().map(this::parseTransaction).toList();
     }
 
     public TransactionResponse createTransaction(CreateTransactionRequest request){
         Transaction transaction = new Transaction();
         //Check AccountID
-        if(!accountRepository.existsById(request.getAccountId())) {
-            throw new ResourceNotFoundException("Account with ID: " + request.getAccountId() + " not found");
-        }
+        Integer userId = currentUserService.getCurrentUserId();
+        accountRepository.findByIdAndUserId(request.getAccountId(), userId).orElseThrow(() -> new ResourceNotFoundException("Account with ID: "+ request.getAccountId() + " not found"));
+
         transaction.setAccountId(request.getAccountId());
         
         //Check CategoryID
@@ -119,6 +132,10 @@ public class TransactionService {
 
     public List<TransactionData> getAllTransactionsDataByDate(TransactionListRequest request){
 
+        for (Integer accountId : request.getAccountId()) {
+            checkAccountAssociated(accountId);
+        }
+
         LocalDate startDate = LocalDate.ofYearDay(1600, 1);
         LocalDate endDate = LocalDate.ofYearDay(3600, 1);
 
@@ -132,10 +149,19 @@ public class TransactionService {
     }
 
     public List<TransactionData> getAllTransactionsDataByDate(List<Integer> accountIds, LocalDate sDate, LocalDate eDate){
+        for (Integer accountId : accountIds) {
+            checkAccountAssociated(accountId);
+        }
         return transactionRepository.getTransactionsData(accountIds, sDate, eDate);
     }
 
     // *****
+
+    private boolean checkAccountAssociated(Integer accountId){
+        Integer userId = currentUserService.getCurrentUserId();
+        accountRepository.findByIdAndUserId(accountId, userId).orElseThrow(() -> new ResourceNotFoundException("Account with ID: "+ accountId + " not found"));
+        return true;
+    }
 
     public TransactionResponse parseTransaction(Transaction transaction){
         return new TransactionResponse(

@@ -16,7 +16,6 @@ import dg.peffy_backend.user.dto.CreateUserRequest;
 import dg.peffy_backend.user.dto.LoginRequest;
 import dg.peffy_backend.user.dto.LoginResponse;
 import dg.peffy_backend.user.dto.UserResponse;
-import dg.peffy_backend.user.dto.DebugDto.PassUpRequest;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.GetMapping;

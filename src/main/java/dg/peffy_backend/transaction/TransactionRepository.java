@@ -14,6 +14,13 @@ import dg.peffy_backend.transaction.dto.TransactionData;
 public interface TransactionRepository extends JpaRepository<Transaction, Integer> {
 
     List<Transaction> findByAccountId(Integer accountId);
+
+    @Query ("""
+        SELECT t
+        FROM Transaction t 
+        JOIN Account a ON t.accountId = a.id 
+        WHERE a.userId = :userId""")
+    public List<Transaction> findAllUserTransactions(@Param("userId") Integer userId);
    
 
     //GET A CALCULATION OF ALL INCOME AND EXPENSES OF ACCOUNTS INDICATED (ALL TIME LONG)

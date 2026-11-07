@@ -11,23 +11,22 @@ import dg.peffy_backend.account.dto.AccountResponse;
 import dg.peffy_backend.account.dto.AccountSummary;
 import dg.peffy_backend.account.dto.CreateAccountRequest;
 import dg.peffy_backend.exception.ResourceNotFoundException;
+import dg.peffy_backend.security.CurrentUserService;
 import dg.peffy_backend.transaction.TransactionService;
-import dg.peffy_backend.user.UserService;
 
 @Service 
 public class AccountService {
 
     private final AccountRepository accountRepository;
     private final TransactionService transactionService;
-    private final UserService userService;
+    private final CurrentUserService currentUserService;
 
     
-    public AccountService(AccountRepository accountRepository,
-        UserService userService, TransactionService transactionService){
+    public AccountService(AccountRepository accountRepository, TransactionService transactionService, CurrentUserService currentUserService){
         
         this.accountRepository = accountRepository;
-        this.userService = userService;
         this.transactionService = transactionService;
+        this.currentUserService = currentUserService;
     }
 
     // ____V2___ BY ACCOUNT ID AND TIMERANGE BUILD AN ACCOUNT SUMMARY DATA
@@ -44,7 +43,8 @@ public class AccountService {
 
     public AccountSummary getAccountSummary(Integer accountId, LocalDate sDate, LocalDate eDate){
         AccountSummary aSummary = new AccountSummary(); 
-        Account account = accountRepository.findById(accountId).orElseThrow(() -> new ResourceNotFoundException("Account with ID: " + accountId + " not found."));
+        Integer userId = currentUserService.getCurrentUserId();
+        Account account = accountRepository.findByIdAndUserId(accountId, userId).orElseThrow(() -> new ResourceNotFoundException("Account with ID: " + accountId + " not found."));
         aSummary.setAccountData(account);
         aSummary.setBalance(account.getInitialBalance());
 
@@ -58,10 +58,10 @@ public class AccountService {
 
     public AccountResponse createAccount(CreateAccountRequest request){
 
-        userService.getUserById(request.getUserId());
+        Integer userId = currentUserService.getCurrentUserId();
 
         Account account = new Account();
-        account.setUserId(request.getUserId());
+        account.setUserId(userId);
         account.setAccountName(request.getAccountName());
         account.setAccountType(request.getAccountType());
         account.setCurrency(request.getCurrency());
@@ -73,21 +73,20 @@ public class AccountService {
     }
 
     public List<AccountResponse> getAllAccounts() {
-        List<Account> listAccounts = accountRepository.findAll();
-        List<AccountResponse> listResponses = new ArrayList<>();
-        for (Account account : listAccounts) {
-            listResponses.add(parseAccountResponse(account));
-        }
-        return listResponses;
+        Integer userId = currentUserService.getCurrentUserId();
+        return  getAllAccountsByUserId(userId);
     }
 
     public AccountResponse getAccountById(Integer id){
-        Account account = accountRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Account with id: "+ id +" not found."));
+        Integer userId = currentUserService.getCurrentUserId();
+        Account account = accountRepository.findByIdAndUserId(id, userId).orElseThrow(() -> new ResourceNotFoundException("Account with id: "+ id +" not found."));
         return parseAccountResponse(account);
     }
 
     public Account updateAccount(Integer id, Account account){
-        Account exsAccount = accountRepository.findById(id).orElseThrow();
+        Integer userId = currentUserService.getCurrentUserId();
+
+        Account exsAccount = accountRepository.findByIdAndUserId(id, userId).orElseThrow(() -> new ResourceNotFoundException("Account with id: " + id + " not found."));
 
         exsAccount.setUserId(account.getId());
         exsAccount.setAccountName(account.getAccountName());
@@ -99,7 +98,9 @@ public class AccountService {
     }
 
     public void deleteAccount(Integer id) {
-        accountRepository.deleteById(id);
+        Integer userId = currentUserService.getCurrentUserId();
+        Account account = accountRepository.findByIdAndUserId(id, userId).orElseThrow(() -> new ResourceNotFoundException("Account with id: " + id + " not found."));
+        accountRepository.delete(account);
     }
 
     public List<AccountResponse> getAllAccountsByUserId(Integer userId){

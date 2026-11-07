@@ -49,11 +49,5 @@ public class TransactionController {
     public ResponseEntity<List<TransactionData>> getAllTransactionByMonth(@Valid @RequestBody TransactionListRequest request) {
         List<TransactionData> transactions = transactionService.getAllTransactionsDataByDate(request);
         return ResponseEntity.ok(transactions);
-    }
-    
-
-    
-    
-    
-    
+    }    
 }

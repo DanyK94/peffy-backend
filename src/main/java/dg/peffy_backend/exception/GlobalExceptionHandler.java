@@ -38,5 +38,16 @@ public class GlobalExceptionHandler {
         response.put("message", exception.getMessage());
         return response;
     }
+
+    @ExceptionHandler(DuplicateResourceException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public Map<String, Object> handleDuplicateResource(DuplicateResourceException exception){
+        Map<String,Object> response = new HashMap<>();
+
+        response.put("status", 409);
+        response.put("message", exception.getMessage());
+
+        return response;
+    }
     
 }

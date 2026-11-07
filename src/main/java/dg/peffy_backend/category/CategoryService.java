@@ -10,31 +10,31 @@ import dg.peffy_backend.category.dto.CategoryResponse;
 import dg.peffy_backend.category.dto.CategoryTotals;
 import dg.peffy_backend.category.dto.CreateCategoryRequest;
 import dg.peffy_backend.exception.ResourceNotFoundException;
-import dg.peffy_backend.user.UserService;
+import dg.peffy_backend.security.CurrentUserService;
 
 @Service 
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
-    private final UserService userService;
+    private final CurrentUserService currentUserService;
 
-    public CategoryService(CategoryRepository categoryRepository, UserService userService){
+    public CategoryService(CategoryRepository categoryRepository, CurrentUserService currentUserService){
         this.categoryRepository = categoryRepository;
-        this.userService = userService;
+        this.currentUserService = currentUserService;
 
     }
 
     public CategoryResponse createCategory(CreateCategoryRequest request){
 
-        userService.getUserById(request.getUserId());
+        Integer userId = currentUserService.getCurrentUserId();
 
         Category category = new Category();
         category.setCategoryName(request.getCategoryName());
         category.setCategoryType(request.getCategoryType());
-        category.setUserId(request.getUserId());
+        category.setUserId(userId);
 
         if (request.getParentId() != null){
-            categoryRepository.findById(request.getParentId()).orElseThrow(() -> new ResourceNotFoundException("Parent Category with ID: " + request.getParentId() + " not found."));
+            categoryRepository.findByIdAndUserId(request.getParentId(), userId).orElseThrow(() -> new ResourceNotFoundException("Parent Category with ID: " + request.getParentId() + " not found."));
             category.setParentId(request.getParentId());
         }
 
@@ -43,10 +43,23 @@ public class CategoryService {
     }
 
     public CategoryResponse getCategoryById(Integer id){
-        Category category = categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Category with ID: " + id + " not found."));
+        Integer userId = currentUserService.getCurrentUserId();
+        Category category = categoryRepository.findByIdAndUserId(id,userId).orElseThrow(() -> new ResourceNotFoundException("Category with ID: " + id + " not found."));
         return  parseResponse(category);
     }
 
+    public List<CategoryResponse> getCategoryByUserId(){
+        Integer userId = currentUserService.getCurrentUserId();
+        return categoryRepository.findByUserId(userId).stream().map(this::parseResponse).toList();
+    }
+
+    public void deleteCategoryById(Integer id){
+        Integer userId = currentUserService.getCurrentUserId();
+        Category category = categoryRepository.findByIdAndUserId(id, userId).orElseThrow(() -> new ResourceNotFoundException("Category with ID: " + id + " not found."));
+        categoryRepository.delete(category);
+    }
+
+    //TODO ----- Delete getAllCategories
     public List<CategoryResponse> getAllCategories(){
         List<Category> listCat = categoryRepository.findAll();
         if (listCat == null) { return Collections.emptyList(); }
@@ -58,6 +71,7 @@ public class CategoryService {
     //GET CategoryTotals
     //Montly Totals
     public List<CategoryTotals> getCategoryTotals(List<Integer> accountsId, LocalDate dateMonth){
+        if (accountsId.isEmpty()) {return List.of();}
         LocalDate startDate = dateMonth.withDayOfMonth(1);
         LocalDate endDate = dateMonth.plusMonths(1).withDayOfMonth(1);
         return categoryRepository.getCategoryTotals(accountsId, startDate, endDate);
