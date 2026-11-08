@@ -17,6 +17,7 @@ import dg.peffy_backend.transaction.dto.CreateTransactionRequest;
 import dg.peffy_backend.transaction.dto.TransactionAccountTotal;
 import dg.peffy_backend.transaction.dto.TransactionResponse;
 import dg.peffy_backend.transaction.dto.Requests.TransactionListRequest;
+import dg.peffy_backend.transaction.dto.Requests.TransactionUpdateRequest;
 import dg.peffy_backend.transaction.dto.TransactionCategoryTotals;
 import dg.peffy_backend.transaction.dto.TransactionData;
 
@@ -107,6 +108,26 @@ public class TransactionService {
 
     }
 
+    public void deleteTransaction(Integer transactionId){
+        Transaction transaction = transactionRepository.findById(transactionId).orElseThrow(() -> new ResourceNotFoundException("Transaction " + transactionId + "not found"));
+        checkAccountAssociated(transaction.getAccountId());
+        transactionRepository.delete(transaction);
+    }
+
+    public TransactionResponse updateTransaction(Integer id, TransactionUpdateRequest request){
+        Transaction transaction = transactionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Transaction " + id + "not found"));
+        checkAccountAssociated(transaction.getAccountId());
+
+        if (categoryService.getCategoryById(request.categoryId()) != null){
+            transaction.setCategoryId(request.categoryId());
+        }
+        transaction.setTransactionDate(request.transactionDate());
+        transaction.setAmount(request.amount());
+        transaction.setTransDescription(request.transDescription());
+        transaction.setNotes(request.notes());
+
+        return parseTransaction(transactionRepository.save(transaction));
+    }
 
     // **********
     // GET ACCOUNT TRANSACTION TOTALS (BETWEEN DATES)
@@ -157,10 +178,9 @@ public class TransactionService {
 
     // *****
 
-    private boolean checkAccountAssociated(Integer accountId){
+    private void checkAccountAssociated(Integer accountId){
         Integer userId = currentUserService.getCurrentUserId();
         accountRepository.findByIdAndUserId(accountId, userId).orElseThrow(() -> new ResourceNotFoundException("Account with ID: "+ accountId + " not found"));
-        return true;
     }
 
     public TransactionResponse parseTransaction(Transaction transaction){

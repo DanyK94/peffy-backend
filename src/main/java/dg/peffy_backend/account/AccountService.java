@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import dg.peffy_backend.account.dto.AccountResponse;
 import dg.peffy_backend.account.dto.AccountSummary;
 import dg.peffy_backend.account.dto.CreateAccountRequest;
+import dg.peffy_backend.account.dto.UpdateAccountRequest;
+import dg.peffy_backend.exception.BusinessException;
 import dg.peffy_backend.exception.ResourceNotFoundException;
 import dg.peffy_backend.security.CurrentUserService;
 import dg.peffy_backend.transaction.TransactionService;
@@ -83,23 +85,24 @@ public class AccountService {
         return parseAccountResponse(account);
     }
 
-    public Account updateAccount(Integer id, Account account){
+    public AccountResponse updateAccount(UpdateAccountRequest request){
         Integer userId = currentUserService.getCurrentUserId();
+        Account account = accountRepository.findByIdAndUserId(request.accountId(), userId).orElseThrow(() -> new ResourceNotFoundException("Account with id: " + request.accountId() + " not found."));
 
-        Account exsAccount = accountRepository.findByIdAndUserId(id, userId).orElseThrow(() -> new ResourceNotFoundException("Account with id: " + id + " not found."));
-
-        exsAccount.setUserId(account.getId());
-        exsAccount.setAccountName(account.getAccountName());
-        exsAccount.setAccountType(account.getAccountType());
-        exsAccount.setCurrency(account.getCurrency());
-        exsAccount.setInitialBalance(account.getInitialBalance());
+        account.setAccountName(request.accountName());
+        account.setAccountType(request.accountType());
+        account.setCurrency(request.currency());
+        account.setInitialBalance(request.initialBalance());
         
-        return accountRepository.save(exsAccount);
+        return parseAccountResponse(accountRepository.save(account));
     }
 
     public void deleteAccount(Integer id) {
         Integer userId = currentUserService.getCurrentUserId();
         Account account = accountRepository.findByIdAndUserId(id, userId).orElseThrow(() -> new ResourceNotFoundException("Account with id: " + id + " not found."));
+        if (transactionService.getAllTransactionsByAccountId(id).size() > 0){
+            throw new BusinessException("Transaction assigned to account with id: " + id + " - Must have zero transaction assigned");
+        }
         accountRepository.delete(account);
     }
 

@@ -8,7 +8,9 @@ import org.springframework.stereotype.Service;
 
 import dg.peffy_backend.category.dto.CategoryResponse;
 import dg.peffy_backend.category.dto.CategoryTotals;
+import dg.peffy_backend.category.dto.CategoryUpdateRequest;
 import dg.peffy_backend.category.dto.CreateCategoryRequest;
+import dg.peffy_backend.exception.BusinessException;
 import dg.peffy_backend.exception.ResourceNotFoundException;
 import dg.peffy_backend.security.CurrentUserService;
 
@@ -53,9 +55,28 @@ public class CategoryService {
         return categoryRepository.findByUserId(userId).stream().map(this::parseResponse).toList();
     }
 
+    public CategoryResponse updateCategory(Integer id, CategoryUpdateRequest request){
+        Integer userId = currentUserService.getCurrentUserId();
+        Category category = categoryRepository.findByIdAndUserId(id, userId).orElseThrow(() -> new ResourceNotFoundException("Category with ID:" + id + "not found."));
+
+        Integer newParentId = request.parentId();
+        if (newParentId != null){
+            if(newParentId.equals(id)) {
+                throw new BusinessException("A category cannot be its own parent.");
+            }
+            categoryRepository.findByIdAndUserId(newParentId, userId).orElseThrow(() -> new ResourceNotFoundException("Parent category with ID: " + newParentId + " not found."));
+        }
+        
+        category.setCategoryName(request.categoryName());
+        category.setCategoryType(request.categoryType());
+        category.setParentId(request.parentId());
+        return parseResponse(categoryRepository.save(category));
+    }
+
     public void deleteCategoryById(Integer id){
         Integer userId = currentUserService.getCurrentUserId();
         Category category = categoryRepository.findByIdAndUserId(id, userId).orElseThrow(() -> new ResourceNotFoundException("Category with ID: " + id + " not found."));
+        //TODO Category Delete Check if has parented categories and transactions
         categoryRepository.delete(category);
     }
 
@@ -82,7 +103,7 @@ public class CategoryService {
         LocalDate endDate = eDate;
         return categoryRepository.getCategoryTotals(accountsId, startDate, endDate);
     }
-
+    
     //---------------------
     
     private CategoryResponse parseResponse(Category category){

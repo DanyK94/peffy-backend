@@ -7,14 +7,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 import dg.peffy_backend.account.dto.AccountResponse;
 import dg.peffy_backend.account.dto.CreateAccountRequest;
+import dg.peffy_backend.account.dto.UpdateAccountRequest;
 import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PutMapping;
+
 
 
 
@@ -42,6 +46,16 @@ public class AccountController {
     @ResponseStatus(HttpStatus.CREATED)
     public AccountResponse createAccount(@Valid @RequestBody CreateAccountRequest request) {
         return accountService.createAccount(request);
+    }
+
+    @PutMapping("/")
+    public AccountResponse updateAccount(@Valid @RequestBody UpdateAccountRequest request) {
+        return accountService.updateAccount(request);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteAccount(@PathVariable("id")  Integer accountId) {
+        accountService.deleteAccount(accountId);
     }
     
 

@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -14,10 +15,13 @@ import dg.peffy_backend.transaction.dto.CreateTransactionRequest;
 import dg.peffy_backend.transaction.dto.TransactionData;
 import dg.peffy_backend.transaction.dto.TransactionResponse;
 import dg.peffy_backend.transaction.dto.Requests.TransactionListRequest;
+import dg.peffy_backend.transaction.dto.Requests.TransactionUpdateRequest;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PutMapping;
+
 
 
 @RestController 
@@ -49,5 +53,17 @@ public class TransactionController {
     public ResponseEntity<List<TransactionData>> getAllTransactionByMonth(@Valid @RequestBody TransactionListRequest request) {
         List<TransactionData> transactions = transactionService.getAllTransactionsDataByDate(request);
         return ResponseEntity.ok(transactions);
-    }    
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<TransactionResponse> updateTransaction(@PathVariable Integer id, @Valid @RequestBody TransactionUpdateRequest request) {
+        TransactionResponse transaction = transactionService.updateTransaction(id, request);        
+        return ResponseEntity.ok(transaction);
+    }
+    
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteTransaction(@PathVariable Integer id){
+        transactionService.deleteTransaction(id);
+        return ResponseEntity.noContent().build();
+    }
 }

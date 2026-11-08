@@ -49,5 +49,15 @@ public class GlobalExceptionHandler {
 
         return response;
     }
-    
+
+    @ExceptionHandler (BusinessException.class)
+    @ResponseStatus (HttpStatus.CONFLICT)
+    public Map<String, Object> handleBusinessException(BusinessException exception){
+        Map<String,Object> response = new HashMap<>();
+
+        response.put("status", 409);
+        response.put("message", exception.getMessage());
+
+        return response;
+    }
 }
