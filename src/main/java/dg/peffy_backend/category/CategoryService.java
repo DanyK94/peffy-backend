@@ -1,5 +1,6 @@
 package dg.peffy_backend.category;
 
+import dg.peffy_backend.transaction.TransactionRepository;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
@@ -17,12 +18,14 @@ import dg.peffy_backend.security.CurrentUserService;
 @Service 
 public class CategoryService {
 
+    private final TransactionRepository transactionRepository;
     private final CategoryRepository categoryRepository;
     private final CurrentUserService currentUserService;
 
-    public CategoryService(CategoryRepository categoryRepository, CurrentUserService currentUserService){
+    public CategoryService(CategoryRepository categoryRepository, CurrentUserService currentUserService, TransactionRepository transactionRepository){
         this.categoryRepository = categoryRepository;
         this.currentUserService = currentUserService;
+        this.transactionRepository = transactionRepository;
 
     }
 
@@ -76,7 +79,10 @@ public class CategoryService {
     public void deleteCategoryById(Integer id){
         Integer userId = currentUserService.getCurrentUserId();
         Category category = categoryRepository.findByIdAndUserId(id, userId).orElseThrow(() -> new ResourceNotFoundException("Category with ID: " + id + " not found."));
-        //TODO Category Delete Check if has parented categories and transactions
+        if (transactionRepository.existsByCategoryId(id)){
+            throw new BusinessException( id + " category has transaction associated. Unbound first.");}
+        if (categoryRepository.existsByParentId(id)){
+            throw new BusinessException( id + " category is parent of at least one category. Unbound first.");}
         categoryRepository.delete(category);
     }
 

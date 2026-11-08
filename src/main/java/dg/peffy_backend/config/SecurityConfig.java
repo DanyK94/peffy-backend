@@ -41,7 +41,7 @@ public class SecurityConfig {
                 .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())
                 .requireCsrfProtectionMatcher(new AndRequestMatcher(CsrfFilter.DEFAULT_CSRF_MATCHER, request -> {
                     String path = request.getServletPath();
-                    return path.equals("/api/users/login") || path.equals("/api/auth/refresh");
+                    return path.equals("/api/users/login") || path.equals("/api/auth/refresh") || path.equals("/api/auth/logout");
                 })))
             .cors(Customizer.withDefaults())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

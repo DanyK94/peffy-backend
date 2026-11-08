@@ -15,6 +15,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
 
     List<Transaction> findByAccountId(Integer accountId);
 
+    boolean existsByCategoryId(Integer categoryId);
+
     @Query ("""
         SELECT t
         FROM Transaction t 

@@ -96,4 +96,11 @@ public class RefreshTokenService {
         String newRefreshToken = createRefreshToken(user);
         return new RefreshTokenResult(newRefreshToken,user);
     }
+
+    @Transactional
+    public void revokeRefeshToken(String rawToken){
+        String tokenHash = hashToken(rawToken);
+
+        refreshTokenRepository.findByTokenHash(tokenHash).ifPresent(RefreshToken::revoke);
+    }
 }

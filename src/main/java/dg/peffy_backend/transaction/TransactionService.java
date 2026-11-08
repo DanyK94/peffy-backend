@@ -118,9 +118,8 @@ public class TransactionService {
         Transaction transaction = transactionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Transaction " + id + "not found"));
         checkAccountAssociated(transaction.getAccountId());
 
-        if (categoryService.getCategoryById(request.categoryId()) != null){
-            transaction.setCategoryId(request.categoryId());
-        }
+        categoryService.getCategoryById(request.categoryId());
+        transaction.setCategoryId(request.categoryId());
         transaction.setTransactionDate(request.transactionDate());
         transaction.setAmount(request.amount());
         transaction.setTransDescription(request.transDescription());

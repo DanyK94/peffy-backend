@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 
 
-
 @RestController 
 @RequestMapping ("/api/auth")
 public class AuthController {
@@ -95,5 +94,33 @@ public class AuthController {
         csrfToken.getToken();
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletRequest request) {
+        if (request.getCookies() != null){
+            for (var cookie : request.getCookies()){
+                if (RefreshTokenCookieConfig.COOKIE_NAME.equals(cookie.getName())){
+                    String rawToken = cookie.getValue();
+
+                    if (rawToken != null && !rawToken.isBlank()){
+                        refreshTokenService.revokeRefeshToken(rawToken);
+                    }
+                    break;
+                }
+            }
+        }
+
+        ResponseCookie clearCookie = ResponseCookie
+            .from(RefreshTokenCookieConfig.COOKIE_NAME, "")
+            .httpOnly(true)
+            .secure(cookieProperties.secure())
+            .sameSite("Lax")
+            .path(RefreshTokenCookieConfig.COOKIE_PATH)
+            .maxAge(0)
+            .build();
+        
+        return ResponseEntity.noContent().header(HttpHeaders.SET_COOKIE, clearCookie.toString()).build();
+    }
+    
     
 }
