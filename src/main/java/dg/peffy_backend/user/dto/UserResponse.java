@@ -4,14 +4,14 @@ import java.time.LocalDateTime;
 public class UserResponse {
 
     private Integer id;
-    private String fistName;
+    private String firstName;
     private String lastName;
     private String email;
     private LocalDateTime createdAt;
 
     public UserResponse(Integer id, String fistName, String lastName, String email, LocalDateTime createdAt) {
         this.id = id;
-        this.fistName = fistName;
+        this.firstName = fistName;
         this.lastName = lastName;
         this.email = email;
         this.createdAt = createdAt;
@@ -25,12 +25,12 @@ public class UserResponse {
         this.id = id;
     }
 
-    public String getFistName() {
-        return fistName;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setFistName(String fistName) {
-        this.fistName = fistName;
+    public void setFirstName(String fistName) {
+        this.firstName = fistName;
     }
 
     public String getLastName() {

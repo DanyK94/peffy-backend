@@ -39,7 +39,17 @@ public class AccountService {
         for (AccountResponse ar : accoList) {
             listAcSumm.add(getAccountSummary(ar.getId(), sDate, eDate));            
         }
+        return  listAcSumm;
+    }
 
+    public List<AccountSummary> getAllAccountSummary(){
+        Integer userId = currentUserService.getCurrentUserId();
+        List<AccountResponse> accoList = getAllAccountsByUserId(userId);
+        List<AccountSummary> listAcSumm = new ArrayList<>();
+
+        for (AccountResponse ar : accoList) {
+            listAcSumm.add(getAccountSummary(ar.getId(), LocalDate.of(1, 1, 1), LocalDate.of(9999, 12, 31)));            
+        }
         return  listAcSumm;
     }
 
